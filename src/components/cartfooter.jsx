@@ -5,7 +5,7 @@ import { FiMapPin } from "react-icons/fi";
 import { IoIosArrowForward } from "react-icons/io";
 export default function CartFooter({
   cartItems,
-  totalPrice,
+  //totalPrice,
   onClearCart,
   onContinue,
 }) {

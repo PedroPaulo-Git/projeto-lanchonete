@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { IoClose } from "react-icons/io5";
 
-export default function Modal({ item, onClose, onAddToCart, totalPrice }) {
+export default function Modal({ item, onClose, onAddToCart }) {
   if (!item) return null;
   const [selectedComplements, setSelectedComplements] = useState({});
   const [quantity, setQuantity] = useState(1); // Começar com 1
