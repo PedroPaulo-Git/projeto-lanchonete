@@ -1,6 +1,8 @@
 import React from "react";
 import Image from "next/image";
 import { IoIosSearch } from "react-icons/io";
+import { FiMapPin } from "react-icons/fi";
+import { IoIosArrowForward } from "react-icons/io";
 
 const header = () => {
   return (
@@ -25,7 +27,6 @@ const header = () => {
         </div>
       </div>
 
-
       <div className="mt-8 px-4">
         <h1 className="font-bold text-3xl">burguer</h1>
         <span>
@@ -36,14 +37,19 @@ const header = () => {
               Loja fechada no momento, abre hoje ás 00:00
             </p>
             <span className="bg-gray-200 text-center justify-center p-1 max-w-28">
-                <p className="text-gray-400 text-sm">Entrega e Retirada</p>
+              <p className="text-gray-400 text-sm">Entrega e Retirada</p>
             </span>
           </span>
-          
+          <div className="border-[1px] py-3 px-3 mt-4 justify-between flex items-center w-full border-gray-500 ">
+            <span className="flex items-center text-lg gap-2">
+              <FiMapPin />
+              <p>Calcular taxa de entrega</p> 
             </span>
+              <IoIosArrowForward />
+           
+          </div>
+        </span>
       </div>
-
-
     </div>
   );
 };
