@@ -40,7 +40,7 @@ const header = () => {
               <p className="text-gray-400 text-sm">Entrega e Retirada</p>
             </span>
           </span>
-          <div className="border-[1px] py-3 px-3 mt-4 justify-between flex items-center w-full border-gray-500 ">
+          <div className="border-[1px] rounded-lg py-3 px-3 mt-4 justify-between flex items-center w-full border-gray-300 ">
             <span className="flex items-center text-lg gap-2">
               <FiMapPin />
               <p>Calcular taxa de entrega</p> 
