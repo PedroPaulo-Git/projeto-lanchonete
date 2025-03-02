@@ -1,30 +1,19 @@
 'use client'
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { IoMenu } from "react-icons/io5";
+import Modal from "./modal";
 
 export default function Menu() {
   const [activeIndex, setActiveIndex] = useState(0);
   const itemsCategorizar = ["PROMOÇÃO", "HAMBÚRGUERES", "SUCOS", "COMBOS"];
-  const items = [
-    {
-      name: "MEGA COMBO",
-      description: "300gr de frango, 300gr de batata, 1 refri",
-      price: "R$ 49,90",
-      image: "https://dummyimage.com/120x80/000/fff&text=Combo", // Substituir pela imagem real
-    },
-    {
-      name: "SUPER BURGER",
-      description: "Hambúrguer artesanal com queijo duplo",
-      price: "R$ 39,90",
-      image: "https://dummyimage.com/120x80/000/fff&text=Burger",
-    },
-    {
-      name: "BATATA FRITA",
-      description: "Porção de batata frita crocante dsadas  dsada",
-      price: "R$ 19,90",
-      image: "https://dummyimage.com/120x80/000/fff&text=Batata",
-    },
-  ];
+  const [items, setItems] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  useEffect(() => {
+    // Importa os dados dos arquivos JSON
+    import("../menuItems.json").then((data) => setItems(data.default));
+  
+  }, []);
+
 
   return (
     <div className="p-4 ">
@@ -49,15 +38,16 @@ export default function Menu() {
     </div>
       <h1 className="font-semibold text-xl text-gray-500 mb-4">PROMOÇÃO</h1>
       <div className="max-w-2xl mx-auto bg-white  border-y-[1px] border-y-gray-300 shadow-lg mb-40 ">
-        {items.map((item, index) => (
+      {items.map((item, index) => (
           <div
             key={index}
-            className="flex  items-center gap-4 border-b border-gray-200 p-2 "
+            className="flex items-center gap-4 border-b border-gray-200 p-2 cursor-pointer"
+            onClick={() => setSelectedItem(item)}
           >
             <div className="flex-1 text-[#212529]">
-              <h3 className="font-semibold  text-md text-[#212529]">{item.name}</h3>
+              <h3 className="font-semibold text-md text-[#212529]">{item.name}</h3>
               <p className="text-gray-600 text-base">{item.description}</p>
-              <p className="font-semibold  mt-1">{item.price}</p>
+              <p className="font-semibold mt-1">{item.price}</p>
             </div>
             <img
               src={item.image}
@@ -66,6 +56,7 @@ export default function Menu() {
             />
           </div>
         ))}
+          <Modal item={selectedItem} onClose={() => setSelectedItem(null)} />
       </div>
     </div>
   );

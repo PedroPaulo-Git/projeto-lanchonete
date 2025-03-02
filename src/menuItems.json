@@ -1,0 +1,60 @@
+[
+  {
+    "name": "X-Burguer",
+    "description": "Hambúrguer artesanal com queijo cheddar",
+    "price": "R$ 15,00",
+    "image": "https://dummyimage.com/120x80/000/fff&text=Batata",
+    "complements": [
+      { "name": "Ovo", "price": 2.0 },
+      { "name": "Bacon", "price": 3.5 },
+      { "name": "Queijo extra", "price": 2.5 },
+      { "name": "Molho especial", "price": 1.0 }
+    ]
+  },
+  {
+    "name": "X-Salada",
+    "description": "Hambúrguer com queijo, alface e tomate",
+    "price": "R$ 17,00",
+    "image": "https://dummyimage.com/120x80/000/fff&text=Batata",
+    "complements": [
+      { "name": "Ovo", "price": 2.0 },
+      { "name": "Cebola caramelizada", "price": 2.0 },
+      { "name": "Molho caseiro", "price": 1.5 }
+    ]
+  },
+  {
+    "name": "BATATA FRITA",
+    "description": "Porção de batata frita crocante dsadas  dsada",
+    "price": "R$ 19,90",
+    "image": "https://dummyimage.com/120x80/000/fff&text=Batata"
+  },
+  {
+    "name": "X-Burguer",
+    "description": "Hambúrguer artesanal com queijo cheddar",
+    "price": "R$ 15,00",
+    "image": "https://dummyimage.com/120x80/000/fff&text=Batata",
+    "complements": [
+      { "name": "Ovo", "price": 2.0 },
+      { "name": "Bacon", "price": 3.5 },
+      { "name": "Queijo extra", "price": 2.5 },
+      { "name": "Molho especial", "price": 1.0 }
+    ]
+  },
+  {
+    "name": "X-Salada",
+    "description": "Hambúrguer com queijo, alface e tomate",
+    "price": "R$ 17,00",
+    "image": "https://dummyimage.com/120x80/000/fff&text=Batata",
+    "complements": [
+      { "name": "Ovo", "price": 2.0 },
+      { "name": "Cebola caramelizada", "price": 2.0 },
+      { "name": "Molho caseiro", "price": 1.5 }
+    ]
+  },
+  {
+    "name": "BATATA FRITA",
+    "description": "Porção de batata frita crocante dsadas  dsada",
+    "price": "R$ 19,90",
+    "image": "https://dummyimage.com/120x80/000/fff&text=Batata"
+  }
+]
