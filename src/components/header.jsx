@@ -31,14 +31,13 @@ const header = () => {
         <h1 className="font-bold text-3xl">burguer</h1>
         <span>
           <p className="text-gray-700">Rua X, 23</p>
-          <li>Mais informações</li>
-          <span className="flex justify-between">
-            <p className="text-red-500 max-w-[60%]">
+          <li className="text-sm">Mais informações</li>
+          <span className="flex justify-between ">
+            <p className="text-red-500 max-w-[60%] text-sm">
               Loja fechada no momento, abre hoje ás 00:00
             </p>
-            <span className="bg-gray-200 text-center justify-center p-1 max-w-28">
-              <p className="text-gray-400 text-sm">Entrega e Retirada</p>
-            </span>
+              <p className="bg-gray-200 text-gray-400 text-xs p-1 text-center w-24 ">Entrega e Retirada</p>
+
           </span>
           <div className="border-[1px] rounded-lg py-3 px-3 mt-4 justify-between flex items-center w-full border-gray-300 ">
             <span className="flex items-center text-lg gap-2">

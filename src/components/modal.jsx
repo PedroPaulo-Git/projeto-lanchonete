@@ -2,19 +2,39 @@
 import { useState, useEffect } from "react";
 import { IoClose } from "react-icons/io5";
 
-export default function Modal({ item, onClose }) {
+export default function Modal({ item, onClose, onAddToCart, totalPrice }) {
   if (!item) return null;
   const [selectedComplements, setSelectedComplements] = useState({});
+  const [quantity, setQuantity] = useState(1); // Começar com 1
   const [isSticky, setIsSticky] = useState(false);
 
+  const [observation, setObservation] = useState("");
+
+  const handleInputChange = (e) => {
+    setObservation(e.target.value);
+  };
   useEffect(() => {
     document.body.style.overflow = "hidden"; // Bloqueia o scroll do fundo
-
-    // Limpar a configuração de overflow quando o modal for fechado
     return () => {
       document.body.style.overflow = "auto"; // Restaura o scroll da página
     };
   }, []);
+  const handleQuantityChange = (change) => {
+    setQuantity((prevQuantity) => Math.max(1, prevQuantity + change)); // Impede quantidade menor que 1
+  };
+
+  const calculatedPrice =
+    (parseFloat(item.price.replace("R$", "").replace(",", ".")) || 0) *
+      quantity +
+    Object.values(selectedComplements).reduce(
+      (acc, complement) => acc + complement.price * complement.quantity,
+      0
+    );
+
+  const handleClose = () => {
+    document.body.style.overflow = "auto"; // Restaura o scroll da página principal
+    onClose(); // Chama a função original de fechamento do modal
+  };
 
   const handleScroll = (e) => {
     const offset = e.target.scrollTop; // Obtém o scroll dentro do modal
@@ -25,33 +45,29 @@ export default function Modal({ item, onClose }) {
       setIsSticky(false);
     }
   };
-  const [quantity, setQuantity] = useState(0); // Quantidade do alimento principal
-
   // Função para aumentar ou diminuir a quantidade
-  const handleQuantityChange = (change) => {
-    setQuantity((prevQuantity) => Math.max(prevQuantity + change, 0)); // Impede quantidade negativa
+  const handleAdd = () => {
+    onAddToCart(item, quantity, selectedComplements);
+    onClose();
   };
-
   // Calcular o preço total
-  const totalPrice =
-    item.price.replace("R$", "").trim().replace(",", ".") * 1 * quantity +
-    Object.entries(selectedComplements).reduce(
-      (acc, [complement, quantity]) => {
-        const complementPrice =
-          item.complements.find((c) => c.name === complement)?.price || 0;
-        return acc + complementPrice * quantity;
-      },
-      0
-    );
 
-  // Função para adicionar/remover complementos
-  const handleComplementChange = (complement, change) => {
+  const handleComplementChange = (complement, price, change) => {
     setSelectedComplements((prev) => {
-      const newCount = (prev[complement] || 0) + change;
-      if (newCount < 0) return prev; // Impede números negativos
-      return { ...prev, [complement]: newCount };
+      const newQuantity = (prev[complement]?.quantity || 0) + change;
+
+      if (newQuantity < 0) return prev; // Impede números negativos
+
+      return {
+        ...prev,
+        [complement]: {
+          quantity: newQuantity,
+          price: parseFloat(price), // Garantimos que o preço seja armazenado
+        },
+      };
     });
   };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
       <div
@@ -61,7 +77,7 @@ export default function Modal({ item, onClose }) {
         {/* Botão de Fechar */}
         <button
           className="absolute top-4 right-4 text-2xl p-1 bg-[#5252525b] rounded-full text-gray-500 z-30"
-          onClick={onClose}
+          onClick={handleClose}
         >
           <IoClose />
         </button>
@@ -109,7 +125,6 @@ export default function Modal({ item, onClose }) {
                   className="flex items-center justify-between border-b border-gray-200 p-3"
                 >
                   <p className="text-gray-700 flex flex-col">
-                    <span></span>
                     {complement.name}
                     <span className="">+ R$ {complement.price.toFixed(2)}</span>
                   </p>
@@ -117,34 +132,45 @@ export default function Modal({ item, onClose }) {
                     <button
                       className="px-3 py-1 text-2xl"
                       onClick={() =>
-                        handleComplementChange(complement.name, -1)
+                        handleComplementChange(
+                          complement.name,
+                          complement.price,
+                          -1
+                        )
                       }
                     >
                       -
                     </button>
                     <span className="mx-2 text-lg">
-                      {selectedComplements[complement.name] || 0}
+                      {selectedComplements[complement.name]?.quantity || 0}
                     </span>
                     <button
                       className="px-3 py-1 text-2xl"
-                      onClick={() => handleComplementChange(complement.name, 1)}
+                      onClick={() =>
+                        handleComplementChange(
+                          complement.name,
+                          complement.price,
+                          1
+                        )
+                      }
                     >
                       +
                     </button>
                   </div>
                 </div>
               ))}
-              <div className=" p-3 text-gray-400 text-sm mb-24">
+              <div className=" p-3 text-gray-400 text-sm mb-36">
                 <span className="flex justify-between w-full">
                   <p>Alguma observação?</p>
-                  <p>0/500</p>
+                  <p>{observation.length}/500</p>
                 </span>
 
-                <input
-                  className="border-[1px] border-gray-200 w-full h-24 mt-2 rounded-sm"
-                  type="text"
-                  name=""
-                  id=""
+                <textarea
+                  className="border-[1px] border-gray-200 w-full h-24 mt-2 p-2 rounded-sm focus:outline-none"
+                  maxLength="500"
+                  value={observation}
+                  onChange={handleInputChange}
+                  placeholder="Digite sua observação aqui"
                 />
               </div>
             </div>
@@ -171,10 +197,10 @@ export default function Modal({ item, onClose }) {
                 </div>
 
                 <button
-                  className="bg-[#181717] text-white px-4 py-3 rounded-sm font-semibold "
-                  onClick={() => alert("Adicionado ao carrinho!")} // Aqui você pode adicionar a lógica para o carrinho
+                  className="bg-[#181717] text-white px-4 py-3 rounded-sm font-semibold"
+                  onClick={handleAdd}
                 >
-                  Adicionar R$ {totalPrice.toFixed(2)}
+                  Adicionar R$ {calculatedPrice.toFixed(2)}
                 </button>
               </div>
             </div>
