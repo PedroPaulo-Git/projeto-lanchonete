@@ -32,10 +32,10 @@ export default function CartFooter({
 
   // Função para converter preço em número
   const parsePrice = (price) => {
-    if (typeof price === 'string') {
+    if (typeof price === "string") {
       return parseFloat(price.replace(/[^\d,]/g, "").replace(",", "."));
     }
-    if (typeof price === 'number') {
+    if (typeof price === "number") {
       return price;
     }
     console.warn(`Preço inválido: ${price}`);
@@ -48,13 +48,16 @@ export default function CartFooter({
     const itemPrice = parsePrice(item.price);
 
     // Preço dos complementos
-    const complementsPrice = Object.values(item.complements || {}).reduce((acc, complement) => {
-      const complementPrice = parsePrice(complement.price);
-      return acc + complementPrice * complement.quantity;
-    }, 0);
+    const complementsPrice = Object.values(item.complements || {}).reduce(
+      (acc, complement) => {
+        const complementPrice = parsePrice(complement.price);
+        return acc + complementPrice * complement.quantity;
+      },
+      0
+    );
 
     // Preço total do item (item principal + complementos)
-    const totalItemPrice = (itemPrice * item.quantity) + complementsPrice;
+    const totalItemPrice = itemPrice * item.quantity + complementsPrice;
 
     return acc + totalItemPrice;
   }, 0);
@@ -88,7 +91,9 @@ export default function CartFooter({
             <div className="border-b-[1px] py-4 px-3 justify-between flex items-center w-full border-gray-200">
               <span className="flex items-center text-lg gap-2">
                 <FiMapPin />
-                <p className="font-semibold text-sm">Calcular taxa de entrega</p>
+                <p className="font-semibold text-sm">
+                  Calcular taxa de entrega
+                </p>
               </span>
               <IoIosArrowForward />
             </div>
@@ -100,13 +105,19 @@ export default function CartFooter({
                   LIMPAR
                 </p>
               </div>
+              {console.log("CART ITEMS", cartItems)}
               {cartItems.map((item, index) => {
                 const itemPrice = parsePrice(item.price);
-                const complementsPrice = Object.values(item.complements || {}).reduce((acc, complement) => {
+                const complementsPrice = Object.keys(
+                  item.complements || {}
+                ).reduce((acc, complementKey) => {
+                  const complement = item.complements[complementKey];
                   const complementPrice = parsePrice(complement.price);
                   return acc + complementPrice * complement.quantity;
                 }, 0);
-                const totalItemPrice = (itemPrice * item.quantity) + complementsPrice;
+
+                const totalItemPrice =
+                  itemPrice * item.quantity + complementsPrice;
 
                 return (
                   <div
@@ -117,19 +128,53 @@ export default function CartFooter({
                       <h3 className="font-semibold text-md text-[#212529]">
                         {item.quantity}x {item.name}
                       </h3>
-                      <p className="font-semibold mt-1">R$ {totalItemPrice.toFixed(2)}</p>
+                      <p className="font-semibold mt-1">
+                        R$ {totalItemPrice.toFixed(2)}
+                      </p>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium space-x-4">
-                        <button className="text-red-800">Editar</button>
-                        <button className="text-gray-500">Remover</button>
-                      </span>
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-16 rounded-lg object-cover"
-                      />
-                    </div>
+
+                    {item.complements &&
+                      Object.keys(item.complements).length > 0 && (
+                        <div>
+                          {Object.keys(item.complements).map(
+                            (complementKey, i) => {
+                              const complement =
+                                item.complements[complementKey];
+                              if (complement.quantity > 0) {
+                                // Só exibe complementos com quantidade maior que 0
+                                return (
+                                  <div
+                                    key={i}
+                                    className="pb-2"
+                                  >
+                                    <div className="flex justify-between">
+                                      <div className="flex flex-col ">
+                                        <span className="text-sm text-gray-500">
+                                          {complement.quantity}x {complementKey}
+                                        </span>
+                                        <span className="font-medium space-x-4">
+                                          <button className="text-red-800">
+                                            Editar
+                                          </button>
+                                          <button className="text-gray-500">
+                                            Remover
+                                          </button>
+                                        </span>
+                                      </div>
+                                      <img
+                                        src={item.image}
+                                        alt={item.name}
+                                        className="w-16 rounded-lg object-cover"
+                                      />
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              return null; // Não renderiza se a quantidade for 0
+                            }
+                          )}
+                        </div>
+                      )}
                   </div>
                 );
               })}
