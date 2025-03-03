@@ -12,39 +12,68 @@ export default function Menu() {
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
 
+  // Carrega os itens do JSON
   useEffect(() => {
     import("../menuItems.json")
-      .then((data) => setItems(data.default || [])) // Garante que seja um array válido
+      .then((data) => setItems(data.default || []))
       .catch((err) => console.error("Erro ao carregar JSON:", err));
   }, []);
-  useEffect(() => {
-    console.log("Itens no carrinho:", cartItems);
-    console.log("Preço total:", totalPrice);
-  }, [cartItems, totalPrice]); // Roda sempre que o carrinho ou o preço total mudar
 
+  // Função para adicionar itens ao carrinho
   const handleAddToCart = (item, quantity, complements) => {
-    const itemPrice = item.price
-      ? parseFloat(item.price.replace(/[^\d,]/g, "").replace(",", "."))
-      : 0;
-
-    const complementsPrice = Object.values(complements || {}).reduce(
-      (acc, price) => acc + (parseFloat(price) || 0),
-      0
-    );
-
-    const newItem = {
-      ...item,
-      quantity,
-      complements,
-      totalItemPrice: itemPrice * quantity + complementsPrice,
+    const parsePrice = (price) => {
+      if (typeof price === 'string') {
+        return parseFloat(price.replace(/[^\d,]/g, "").replace(",", "."));
+      }
+      if (typeof price === 'number') {
+        return price;
+      }
+      console.warn(`Preço inválido: ${price}`);
+      return 0;
     };
-
-    setCartItems((prevCart) => [...prevCart, newItem]);
-
-    // Atualiza o total corretamente
-    setTotalPrice((prevTotal) => prevTotal + newItem.totalItemPrice);
+  
+    // Preço do item principal
+    const itemPrice = parsePrice(item.price);
+  
+    // Preço dos complementos
+    const complementsPrice = Object.values(complements || {}).reduce((acc, complement) => {
+      const complementPrice = parsePrice(complement.price);
+      return acc + complementPrice * complement.quantity;
+    }, 0);
+  
+    // Preço total do item (item principal + complementos)
+    const totalItemPrice = (itemPrice * quantity) + complementsPrice;
+  
+    // Verifica se o item já está no carrinho
+    setCartItems((prevCart) => {
+      const existingItemIndex = prevCart.findIndex((cartItem) => cartItem.name === item.name);
+  
+      if (existingItemIndex !== -1) {
+        // Atualiza o item existente
+        const updatedCart = [...prevCart];
+        updatedCart[existingItemIndex].quantity += quantity;
+        updatedCart[existingItemIndex].totalItemPrice += totalItemPrice;
+        return updatedCart;
+      } else {
+        // Adiciona um novo item ao carrinho
+        return [...prevCart, { 
+          ...item, 
+          quantity, 
+          complements, 
+          totalItemPrice 
+        }];
+      }
+    });
+    console.log("Item Principal:", item);
+    console.log("Quantidade:", quantity);
+    console.log("Complementos:", complements);
+    console.log("Preço do Item Principal:", itemPrice);
+    console.log("Preço dos Complementos:", complementsPrice);
+    console.log("Preço Total do Item:", totalItemPrice);
+    // Atualiza o preço total do carrinho
+    setTotalPrice((prevTotal) => prevTotal + totalItemPrice);
   };
-
+  
   return (
     <div className="p-4 ">
       <div>
@@ -90,7 +119,7 @@ export default function Menu() {
           </div>
         ))}
 
-        <CartFooter cartItems={cartItems || []} totalPrice={totalPrice || 0} />
+        <CartFooter onClearCart={() => setCartItems([])} cartItems={cartItems || []} totalPrice={totalPrice || 0} />
 
         {selectedItem && (
           <Modal
