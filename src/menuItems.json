@@ -4,6 +4,7 @@
     "description": "Hambúrguer artesanal com queijo cheddar",
     "price": "R$ 15,00",
     "image": "https://dummyimage.com/120x80/000/fff&text=Batata",
+    "category": "HAMBÚRGUERES",
     "complements": [
       { "name": "Ovo", "price": "R$ 2,00" },
       { "name": "Bacon", "price": "R$ 3,50" },
@@ -16,6 +17,7 @@
     "description": "Hambúrguer com queijo, alface e tomate",
     "price": "R$ 17,00",
     "image": "https://dummyimage.com/120x80/000/fff&text=Batata",
+    "category": "SUCOS",
     "complements": [
       { "name": "Ovo", "price": "R$ 2,00" },
       { "name": "Cebola caramelizada", "price": "R$ 2,00" },
@@ -23,9 +25,51 @@
     ]
   },
   {
-    "name": "BATATA FRITA",
-    "description": "Porção de batata frita crocante",
-    "price": "R$ 19,90",
-    "image": "https://dummyimage.com/120x80/000/fff&text=Batata"
+    "name": "X-Salada",
+    "description": "Hambúrguer com queijo, alface e tomate",
+    "price": "R$ 17,00",
+    "image": "https://dummyimage.com/120x80/000/fff&text=Batata",
+    "category": "COMBOS",
+    "complements": [
+      { "name": "Ovo", "price": "R$ 2,00" },
+      { "name": "Cebola caramelizada", "price": "R$ 2,00" },
+      { "name": "Molho caseiro", "price": "R$ 1,50" }
+    ]
+  },
+  {
+    "name": "X-Salada 2",
+    "description": "Hambúrguer com queijo, alface e tomate",
+    "price": "R$ 17,00",
+    "image": "https://dummyimage.com/120x80/000/fff&text=Batata",
+    "category": "PROMOÇÃO",
+    "complements": [
+      { "name": "Ovo", "price": "R$ 2,00" },
+      { "name": "Cebola caramelizada", "price": "R$ 2,00" },
+      { "name": "Molho caseiro", "price": "R$ 1,50" }
+    ]
+  },
+  {
+    "name": "X-Salada 2",
+    "description": "Hambúrguer com queijo, alface e tomate",
+    "price": "R$ 17,00",
+    "image": "https://dummyimage.com/120x80/000/fff&text=Batata",
+    "category": "HAMBÚRGUERES",
+    "complements": [
+      { "name": "Ovo", "price": "R$ 2,00" },
+      { "name": "Cebola caramelizada", "price": "R$ 2,00" },
+      { "name": "Molho caseiro", "price": "R$ 1,50" }
+    ]
+  },
+  {
+    "name": "X-Salada 1",
+    "description": "Hambúrguer com queijo, alface e tomate",
+    "price": "R$ 17,00",
+    "image": "https://dummyimage.com/120x80/000/fff&text=Batata",
+    "category": "HAMBÚRGUERES",
+    "complements": [
+      { "name": "Ovo", "price": "R$ 2,00" },
+      { "name": "Cebola caramelizada", "price": "R$ 2,00" },
+      { "name": "Molho caseiro", "price": "R$ 1,50" }
+    ]
   }
 ]
