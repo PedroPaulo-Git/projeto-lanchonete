@@ -4,6 +4,7 @@ import { IoClose } from "react-icons/io5";
 import { FiMapPin } from "react-icons/fi";
 import { IoIosArrowForward } from "react-icons/io";
 import PaymentStatus from "./verifyPayment";
+import MercadoPagoComponent from "./mercadopagocomponent";
 
 export default function CartFooter({
   cartItems = [],
@@ -137,7 +138,7 @@ export default function CartFooter({
               <IoIosArrowForward />
             </div>
 
-            <div className="space-y-4 bg-gray-50 h-full p-3 mb-20">
+            <div className="space-y-4 bg-gray-50 p-3 mb-20">
              
               <div className="flex justify-between items-center">
                 <p className="font-semibold">Sua sacola</p>
@@ -215,6 +216,7 @@ export default function CartFooter({
                 );
               })}
             </div>
+            <MercadoPagoComponent total={total}/>
             <div className="bg-white fixed w-full bottom-0 p-3 border-t-[1px] border-gray-100">
               <div className="my-2">
                 <div className="flex justify-between mb-2">
