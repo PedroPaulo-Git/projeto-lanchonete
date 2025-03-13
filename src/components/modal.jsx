@@ -9,14 +9,6 @@ const Modal = ({ item, onClose, onAddToCart }) => {
   if (!item) return null;
   const [quantity, setQuantity] = useState(1);
 
-  //console.log("Modal renderizado");
-  // Estado para os complementos selecionados
-  // const [selectedComplements, setSelectedComplements] = useState(
-  //   item.complements?.reduce((acc, complement) => {
-  //     acc[complement.name] = { quantity: 0, price: complement.price };
-  //     return acc;
-  //   }, {}) || {}
-  // );
   const [selectedComplements, setSelectedComplements] = useState(
     item.complements?.reduce((acc, complement) => {
       acc[complement.name] = { quantity: 0, price: complement.price };
@@ -33,15 +25,6 @@ const Modal = ({ item, onClose, onAddToCart }) => {
     );
     setObservation("");
   }, [item]); 
-  // const handleAdd = ((event) => {
-  //   event.preventDefault();
-  //   console.log("Adicionando ao carrinho   "+quantity);
-  //   onAddToCart(item); // Sempre passe 1 para a quantidade
-  //   onClose();
-  //   console.log(item)
-  // }, [item]);
-  
-  // Estado para a quantidade do item principal
 
 
   // Estado para observações

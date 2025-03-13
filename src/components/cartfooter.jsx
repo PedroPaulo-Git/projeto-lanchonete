@@ -6,15 +6,98 @@ import { FiMapPin } from "react-icons/fi";
 import { IoIosArrowForward } from "react-icons/io";
 import PaymentStatus from "./verifyPayment";
 import { useCart } from "@/app/context/contextComponent";
+import UserInfoModal from "./modalUser";
 
 export default function CartFooter() {
-  const { cartItems, clearCart } = useCart();
+  const { cartItems, clearCart, removeFromCart } = useCart();
   const router = useRouter();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [showPaymentStatus, setShowPaymentStatus] = useState(false);
   const [paymentId, setPaymentId] = useState(null);
   //const [status, setStatus] = useState('');
+  const [showUserInfoModal, setShowUserInfoModal] = useState(false);
+
+
+
+  // Função para converter preço em número
+  const parsePrice = (price) => {
+    if (typeof price === "string") {
+      // Remover "R$" e substituir vírgula por ponto
+      return parseFloat(price.replace(/[^\d,]/g, "").replace(",", "."));
+    }
+    if (typeof price === "number") {
+      return price;
+    }
+    console.log(price);
+    console.warn(`Preço inválido: ${price}`);
+    return 0;
+  };
+  
+  // Cálculo do subtotal (item principal + complementos)
+  const subtotal = cartItems.reduce((acc, item) => {
+    // Preço do item principal
+    const itemPrice = parsePrice(item.price);
+  
+    // Preço dos complementos
+    const complementsPrice = Object.values(item.complements || {}).reduce(
+      (acc, complement) => {
+        const complementPrice = parsePrice(complement.price);
+        return acc + complementPrice * complement.quantity;
+      },
+      0
+    );
+  
+    // Preço total do item (item principal + complementos)
+    const totalItemPrice = itemPrice * item.quantity + complementsPrice;
+  
+    return acc + totalItemPrice;
+  }, 0);
+  
+
+  const deliveryFee = 0; // Taxa de entrega
+  const total = subtotal + deliveryFee;
+
+
+
+
+
+  useEffect(() => {
+    // Verifica se o usuário já forneceu os dados
+    const userData = localStorage.getItem("userData");
+    if (!userData) {
+      setShowUserInfoModal(true); // Se não tiver dados, exibe o modal
+    }
+  }, []);
+  const handleContinue = () => {
+    if (!localStorage.getItem("userData")) {
+      // Se não tiver dados no localStorage, abre o modal
+      setShowUserInfoModal(true);
+      return;
+    }
+  
+    // Calculando o total
+    const total = cartItems.reduce((acc, item) => {
+      const itemPrice = parseFloat(item.price.replace('R$', '').replace(',', '.'));
+      // Garantir que o preço não seja NaN
+      if (isNaN(itemPrice)) {
+        console.warn("Preço inválido:", item.price);
+        return acc;  // Se o preço for inválido, não adiciona ao total
+      }
+      return acc + itemPrice * item.quantity;
+    }, 0);
+  
+    // Garantir que o total não seja NaN, caso contrário, atribui 0
+    if (isNaN(total)) {
+      console.error("Total inválido:", total);
+      return;  // Se o total for NaN, não prossegue
+    }
+  
+    // Salvando o total no localStorage apenas se for um número válido
+    localStorage.setItem("cartTotal", total > 0 ? total.toFixed(2) : "0.00");
+    router.push(`/checkout`);
+  };
+  
   
   const handleToggleCart = () => {
     setIsCartOpen(!isCartOpen);
@@ -27,87 +110,29 @@ export default function CartFooter() {
     }
   };
 
+  const handleRemoveFromCart = (itemId) => {
+    removeFromCart(itemId);
+    console.log(`Item removido: ${itemId}`);
+  };
+
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      setIsCartOpen(false);
+      document.body.style.overflow = "auto"; // Libera a rolagem
+    }
+  }, [cartItems.length]);
+
   const handleClearCart = () => {
-    onClearCart();
+    clearCart();
     setIsCartOpen(false);
     document.body.style.overflow = "auto";
     window.scrollTo(0, scrollPosition);
   };
 
-
-  // Função para converter preço em número
-  const parsePrice = (price) => {
-    if (typeof price === "string") {
-      return parseFloat(price.replace(/[^\d,]/g, "").replace(",", "."));
-    }
-    if (typeof price === "number") {
-      return price;
-    }
-    console.log(price)
-    console.warn(`Preço inválido: ${price}`);
-    return 0;
-  };
-
-  // Cálculo do subtotal (item principal + complementos)
-  const subtotal = cartItems.reduce((acc, item) => {
-    // Preço do item principal
-    const itemPrice = parsePrice(item.price);
-
-    // Preço dos complementos
-    const complementsPrice = Object.values(item.complements || {}).reduce(
-      (acc, complement) => {
-        const complementPrice = parsePrice(complement.price);
-        return acc + complementPrice * complement.quantity;
-      },
-      0
-    );
-
-    // Preço total do item (item principal + complementos)
-    const totalItemPrice = itemPrice * item.quantity + complementsPrice;
- 
-    return acc + totalItemPrice;
-  }, 0);
-
-  const deliveryFee = 0; // Taxa de entrega
-  const total = subtotal + deliveryFee;
-  const handleContinue = () => {
-      router.push(`/checkout?total=${total}`);
-  };
   if (cartItems.length === 0) return null;
- 
-  const handlePayment = async () => {
-    if (cartItems.length === 0) {
-      alert("Carrinho vazio.");
-      return;
-    }
-
-    try {
-      const response = await fetch("http://localhost:5000/create-preference", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: cartItems.length === 1 ? cartItems[0].name : "Pedido múltiplo",
-          unit_price: total, // Preço total do carrinho
-        }),
-      });
-
-      const data = await response.json();
-      console.log(data)
-      if (data.init_point) {
-        setPaymentId(data.id);
-        setShowPaymentStatus(true);
-        window.open(data.init_point, "_blank"); // Redireciona para pagamento
-      } else {
-        alert("Erro ao gerar pagamento.");
-      }
-    } catch (error) {
-      console.error("Erro no pagamento:", error);
-    }
-  };
 
   return (
     <>
-    
       <div className="z-20 fixed bottom-20 left-0 w-full bg-[#181717] text-white p-4 flex justify-between items-center">
         <p className="text-sm font-semibold">{cartItems.length} item(s)</p>
         <button onClick={handleToggleCart} className="text-sm font-semibold">
@@ -118,14 +143,13 @@ export default function CartFooter() {
 
       {isCartOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-           {showPaymentStatus && <PaymentStatus paymentId={paymentId} />}
+          {showPaymentStatus && <PaymentStatus paymentId={paymentId} />}
           <div className="bg-white w-full h-full overflow-y-auto">
             <div className="items-center justify-between text-center border-b-[1px] border-gray-200 p-3 py-4 flex">
               <h3 className="font-normal text-md text-[#212529] text-lg">
                 Projeto lanchonete
-             
               </h3>
-             
+
               <button className="text-2xl" onClick={handleToggleCart}>
                 <IoClose />
               </button>
@@ -142,7 +166,6 @@ export default function CartFooter() {
             </div>
 
             <div className="space-y-4 bg-gray-50 p-3 h-full pb-40">
-             
               <div className="flex justify-between items-center">
                 <p className="font-semibold">Sua sacola</p>
                 <p onClick={handleClearCart} className="text-xs">
@@ -213,13 +236,18 @@ export default function CartFooter() {
                     </div>
                     <span className="font-medium space-x-4">
                       <button className="text-red-800">Editar</button>
-                      <button className="text-gray-500">Remover</button>
+                      <button
+                        onClick={() => handleRemoveFromCart(item.id)}
+                        className="text-gray-500"
+                      >
+                        Remover
+                      </button>
                     </span>
                   </div>
                 );
               })}
             </div>
-        
+
             <div className="bg-white fixed w-full bottom-0 p-3 border-t-[1px] border-gray-100">
               <div className="my-2">
                 <div className="flex justify-between mb-2">
@@ -235,11 +263,13 @@ export default function CartFooter() {
                   <p>R$ {total.toFixed(2)}</p>
                 </div>
               </div>
-
+              {showUserInfoModal && (
+                <UserInfoModal onSubmit={() => setShowUserInfoModal(false)} />
+              )}
               <div className="justify-between mt-4 flex flex-col">
                 <button
                   className="bg-[#181717] text-white px-4 py-3 rounded-sm font-semibold"
-                   onClick={handleContinue}
+                  onClick={handleContinue}
                   //  disabled={!isMounted}
                 >
                   Continuar Pedido

@@ -13,6 +13,9 @@ export const CartProvider = ({ children }) => {
     }
     return price || 0;
   };
+
+
+
   const addToCart = useCallback((item, quantity, complements) => {
     const itemPrice = parsePrice(item.price);
   
@@ -35,11 +38,15 @@ export const CartProvider = ({ children }) => {
     ]);
   }, []);
   
+  const removeFromCart = useCallback((itemId) => {
+    setCartItems(prev => prev.filter(item => item.id !== itemId));
+  }, []);
+  
 
   const clearCart = useCallback(() => setCartItems([]), []);
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, clearCart }}>
+    <CartContext.Provider value={{ cartItems, addToCart, clearCart,removeFromCart }}>
       {children}
     </CartContext.Provider>
   );
