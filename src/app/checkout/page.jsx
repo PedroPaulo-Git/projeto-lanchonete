@@ -1,12 +1,12 @@
 "use client"; // Garante que o componente é renderizado no lado do cliente
 
 import { useState,useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+//import { useSearchParams } from "next/navigation";
 import MercadoPagoComponent from "@/components/mercadopagocomponent";
 
 export default function CheckoutPage() {
-  const searchParams = useSearchParams();
-  const total = parseFloat(searchParams.get("total")); // Recebe o valor total da URL
+  // const searchParams = useSearchParams();
+  // const total = parseFloat(searchParams.get("total")); // Recebe o valor total da URL
   const [cartValueTotal,setcartValueTotal] = useState(0)
   const [step, setStep] = useState(1); // Controla a etapa atual do checkout
   useEffect(() => {
