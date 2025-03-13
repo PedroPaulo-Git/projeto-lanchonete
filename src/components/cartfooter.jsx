@@ -4,17 +4,17 @@ import { useRouter } from "next/navigation"; // Correto para Next.js 13+
 import { IoClose } from "react-icons/io5";
 import { FiMapPin } from "react-icons/fi";
 import { IoIosArrowForward } from "react-icons/io";
-import PaymentStatus from "./verifyPayment";
+//import PaymentStatus from "./verifyPayment";
 import { useCart } from "@/app/context/contextComponent";
-import UserInfoModal from "./modalUser";
+import UserInfoModal from "./modals/modalUser";
 
-export default function CartFooter() {
+export default function CartFooter({setmodalAddressOpen}) {
   const { cartItems, clearCart, removeFromCart } = useCart();
   const router = useRouter();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
-  const [showPaymentStatus, setShowPaymentStatus] = useState(false);
-  const [paymentId, setPaymentId] = useState(null);
+ // const [showPaymentStatus, setShowPaymentStatus] = useState(false);
+  //const [paymentId, setPaymentId] = useState(null);
   //const [status, setStatus] = useState('');
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
 
@@ -69,6 +69,7 @@ export default function CartFooter() {
       setShowUserInfoModal(true); // Se não tiver dados, exibe o modal
     }
   }, []);
+  
   const handleContinue = () => {
     if (!localStorage.getItem("userData")) {
       // Se não tiver dados no localStorage, abre o modal
@@ -109,6 +110,22 @@ export default function CartFooter() {
       window.scrollTo(0, scrollPosition);
     }
   };
+  const handleToggleAddress = () => {
+    setIsCartOpen(!isCartOpen);
+    setmodalAddressOpen(true);
+  
+    if (!isCartOpen) {
+      setScrollPosition(window.scrollY);
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+      window.scrollTo(0, scrollPosition);
+    }
+  
+    if (!setmodalAddressOpen) {
+      document.body.style.overflow = "auto";
+    }
+  };
 
   const handleRemoveFromCart = (itemId) => {
     removeFromCart(itemId);
@@ -143,7 +160,7 @@ export default function CartFooter() {
 
       {isCartOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-          {showPaymentStatus && <PaymentStatus paymentId={paymentId} />}
+          {/* {showPaymentStatus && <PaymentStatus paymentId={paymentId} />} */}
           <div className="bg-white w-full h-full overflow-y-auto">
             <div className="items-center justify-between text-center border-b-[1px] border-gray-200 p-3 py-4 flex">
               <h3 className="font-normal text-md text-[#212529] text-lg">
@@ -158,7 +175,7 @@ export default function CartFooter() {
             <div className="border-b-[1px] py-4 px-3 justify-between flex items-center w-full border-gray-200">
               <span className="flex items-center text-lg gap-2">
                 <FiMapPin />
-                <p className="font-semibold text-sm">
+                <p onClick={handleToggleAddress} className="font-semibold text-sm">
                   Calcular taxa de entrega
                 </p>
               </span>

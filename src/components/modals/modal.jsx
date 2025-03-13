@@ -59,16 +59,7 @@ const Modal = ({ item, onClose, onAddToCart }) => {
     }, 0);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Função para adicionar o item ao carrinho
-  // const handleAdd = useCallback((event) => {
-  //   event.preventDefault();
-  //   console.log("Adicionando ao carrinho   "+quantity);
-  //   onAddToCart(item, quantity, selectedComplements); // Sempre passe 1 para a quantidade
-  //   onClose();
-  //   console.log(item)
-  // }, [item, selectedComplements, onAddToCart, onClose,quantity]);
   
-  // Função para alterar a quantidade de complementos
   const handleComplementChange = (complement, change) => {
     setSelectedComplements((prev) => {
       const newQuantity = (prev[complement.name]?.quantity || 0) + change;

@@ -1,11 +1,12 @@
 "use client";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { IoMenu } from "react-icons/io5";
-import Modal from "./modal";
+import Modal from "./modals/modal";
 import CartFooter from "./cartfooter";
+//import modalAddress from "./modals/modalAddress";
 import { useCart } from "@/app/context/contextComponent";
 
-export default function Menu() {
+export default function Menu({setmodalAddressOpen}) {
   const [activeIndex, setActiveIndex] = useState(0);
   const itemsCategorizar = ["PROMOÇÃO", "HAMBÚRGUERES", "SUCOS", "COMBOS"];
   const [items, setItems] = useState([]);
@@ -13,6 +14,7 @@ export default function Menu() {
   const { cartItems, addToCart, clearCart } = useCart();
   const [totalPrice, setTotalPrice] = useState(0);
   const sectionRefs = useRef({});
+
 
   // Carrega os itens do JSON
   useEffect(() => {
@@ -96,10 +98,13 @@ export default function Menu() {
           </div>
         ))}
       </div>
+
+     
       <CartFooter
         // onClearCart={() => setCartItems([])}
         cartItems={cartItems || []}
         totalPrice={totalPrice || 0}
+        setmodalAddressOpen={setmodalAddressOpen}
       />
       {selectedItem && (
         <Modal

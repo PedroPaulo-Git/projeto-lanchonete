@@ -4,7 +4,7 @@ import { IoIosSearch } from "react-icons/io";
 import { FiMapPin } from "react-icons/fi";
 import { IoIosArrowForward } from "react-icons/io";
 
-const header = () => {
+const header = ({setmodalAddressOpen}) => {
   return (
     <div>
       <div className="w-full flex items-center px-6 gap-4 ">
@@ -42,7 +42,7 @@ const header = () => {
           <div className="border-[1px] rounded-lg py-3 px-3 mt-4 justify-between flex items-center w-full border-gray-300 ">
             <span className="flex items-center text-lg gap-2">
               <FiMapPin />
-              <p>Calcular taxa de entrega</p> 
+              <p onClick={()=>setmodalAddressOpen(true)}>Calcular taxa de entrega</p> 
             </span>
               <IoIosArrowForward />
            
