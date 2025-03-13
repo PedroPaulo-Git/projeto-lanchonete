@@ -10,6 +10,7 @@ const MercadoPagoComponent = ({ total }) => {
       return;
     }
     console.log(total);
+  
 
     // Função para inicializar o Mercado Pago
     const initializeMercadoPago = () => {
@@ -162,103 +163,7 @@ const MercadoPagoComponent = ({ total }) => {
   }, [total]);
   return (
     <div className=" bg-white p-6 rounded-lg shadow-lg" >
-      {/* <form id="form-checkout" className="space-y-6 pb-36">
-        <div >
-          <input
-            type="text"
-            id="form-checkout__cardNumber"
-            placeholder="Número do cartão"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-  
-        <div >
-          <input
-            type="text"
-            id="form-checkout__expirationDate"
-            placeholder="MM/YY"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-  
-        <div>
-          <input
-            type="text"
-            id="form-checkout__securityCode"
-            placeholder="Código de segurança"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-  
-        <div>
-          <input
-            type="text"
-            id="form-checkout__cardholderName"
-            placeholder="Titular do cartão"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-  
-        <div>
-          <select
-            id="form-checkout__issuer"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Selecione o banco emissor</option>
-                    </select>
-        </div>
-  
-        <div>
-          <select
-            id="form-checkout__installments"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Selecione o número de parcelas</option>
-            
-          </select>
-        </div>
-  
-        <div>
-          <select
-            id="form-checkout__identificationType"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Selecione o tipo de documento</option>
-            /}
-          </select>
-        </div>
-  
-        <div>
-          <input
-            type="text"
-            id="form-checkout__identificationNumber"
-            placeholder="Número do documento"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-  
-        <div>
-          <input
-            type="email"
-            id="form-checkout__cardholderEmail"
-            placeholder="E-mail"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-  
-        <div className="flex justify-center">
-          <button
-            type="submit"
-            id="form-checkout__submit"
-            className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Pagar
-          </button>
-        </div>
-  
-        <progress value="0" className="w-full mt-4" aria-label="Carregando..." />
-      </form> */}
-      
+
        <form id="form-checkout" className="mb-64">
     <div id="form-checkout__cardNumber" class="container"></div>
     <div id="form-checkout__expirationDate" class="container"></div>

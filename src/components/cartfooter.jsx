@@ -1,16 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // Correto para Next.js 13+
 import { IoClose } from "react-icons/io5";
 import { FiMapPin } from "react-icons/fi";
 import { IoIosArrowForward } from "react-icons/io";
 import PaymentStatus from "./verifyPayment";
-import MercadoPagoComponent from "./mercadopagocomponent";
+import { useCart } from "@/app/context/contextComponent";
 
-export default function CartFooter({
-  cartItems = [],
-  onClearCart = () => {},
-  // onContinue = () => {},
-}) {
+export default function CartFooter() {
+  const { cartItems, clearCart } = useCart();
+  const router = useRouter();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [showPaymentStatus, setShowPaymentStatus] = useState(false);
@@ -35,6 +34,7 @@ export default function CartFooter({
     window.scrollTo(0, scrollPosition);
   };
 
+
   // Função para converter preço em número
   const parsePrice = (price) => {
     if (typeof price === "string") {
@@ -43,6 +43,7 @@ export default function CartFooter({
     if (typeof price === "number") {
       return price;
     }
+    console.log(price)
     console.warn(`Preço inválido: ${price}`);
     return 0;
   };
@@ -63,13 +64,15 @@ export default function CartFooter({
 
     // Preço total do item (item principal + complementos)
     const totalItemPrice = itemPrice * item.quantity + complementsPrice;
-
+ 
     return acc + totalItemPrice;
   }, 0);
 
   const deliveryFee = 0; // Taxa de entrega
   const total = subtotal + deliveryFee;
-
+  const handleContinue = () => {
+      router.push(`/checkout?total=${total}`);
+  };
   if (cartItems.length === 0) return null;
  
   const handlePayment = async () => {
@@ -138,7 +141,7 @@ export default function CartFooter({
               <IoIosArrowForward />
             </div>
 
-            <div className="space-y-4 bg-gray-50 p-3 mb-20">
+            <div className="space-y-4 bg-gray-50 p-3 h-full pb-40">
              
               <div className="flex justify-between items-center">
                 <p className="font-semibold">Sua sacola</p>
@@ -216,7 +219,7 @@ export default function CartFooter({
                 );
               })}
             </div>
-            <MercadoPagoComponent total={total}/>
+        
             <div className="bg-white fixed w-full bottom-0 p-3 border-t-[1px] border-gray-100">
               <div className="my-2">
                 <div className="flex justify-between mb-2">
@@ -236,7 +239,8 @@ export default function CartFooter({
               <div className="justify-between mt-4 flex flex-col">
                 <button
                   className="bg-[#181717] text-white px-4 py-3 rounded-sm font-semibold"
-                  onClick={handlePayment}
+                   onClick={handleContinue}
+                  //  disabled={!isMounted}
                 >
                   Continuar Pedido
                 </button>

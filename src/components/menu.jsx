@@ -1,25 +1,19 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { IoMenu } from "react-icons/io5";
 import Modal from "./modal";
 import CartFooter from "./cartfooter";
+import { useCart } from "@/app/context/contextComponent";
 
 export default function Menu() {
   const [activeIndex, setActiveIndex] = useState(0);
   const itemsCategorizar = ["PROMOÇÃO", "HAMBÚRGUERES", "SUCOS", "COMBOS"];
   const [items, setItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [cartItems, setCartItems] = useState([]);
+  const { cartItems, addToCart, clearCart } = useCart();
   const [totalPrice, setTotalPrice] = useState(0);
   const sectionRefs = useRef({});
-  const categorizedItems = itemsCategorizar.reduce((acc, category) => {
-    acc[category] = items.filter((item) => item.category === category);
-    return acc;
-  }, {});
-  const scrollToCategory = (category) => {
-    setActiveIndex(itemsCategorizar.indexOf(category));
-    sectionRefs.current[category]?.scrollIntoView({ behavior: "smooth" });
-  };
+
   // Carrega os itens do JSON
   useEffect(() => {
     import("../menuItems.json")
@@ -27,93 +21,51 @@ export default function Menu() {
       .catch((err) => console.error("Erro ao carregar JSON:", err));
   }, []);
 
-  // Função para adicionar itens ao carrinho
-  const handleAddToCart = (item, quantity, complements) => {
-    const parsePrice = (price) => {
-      if (typeof price === "string") {
-        return parseFloat(price.replace(/[^\d,]/g, "").replace(",", "."));
-      }
-      if (typeof price === "number") {
-        return price;
-      }
-      console.warn(`Preço inválido: ${price}`);
-      return 0;
-    };
+  // Monitora mudanças em selectedItem
+  useEffect(() => {
+    if (selectedItem) {
+      console.log("Item selecionado", selectedItem);
+    }
+    console.log(items)
+  }, [selectedItem]);
 
-    // Preço do item principal
-    const itemPrice = parsePrice(item.price);
+  // Categoriza os itens (usando useMemo para evitar recálculos desnecessários)
+  const categorizedItems = useMemo(() => {
+    return itemsCategorizar.reduce((acc, category) => {
+      acc[category] = items.filter((item) => item.category === category);
+      return acc;
+    }, {});
+  }, [items, itemsCategorizar]);
 
-    // Preço dos complementos
-    const complementsPrice = Object.values(complements || {}).reduce(
-      (acc, complement) => {
-        const complementPrice = parsePrice(complement.price);
-        return acc + complementPrice * complement.quantity;
-      },
-      0
-    );
-
-    // Preço total do item (item principal + complementos)
-    const totalItemPrice = itemPrice * quantity + complementsPrice;
-
-    // Verifica se o item já está no carrinho
-    setCartItems((prevCart) => {
-      const existingItemIndex = prevCart.findIndex(
-        (cartItem) => cartItem.name === item.name
-      );
-
-      if (existingItemIndex !== -1) {
-        // Atualiza o item existente
-        const updatedCart = [...prevCart];
-        updatedCart[existingItemIndex].quantity += quantity;
-        updatedCart[existingItemIndex].totalItemPrice += totalItemPrice;
-        return updatedCart;
-      } else {
-        // Adiciona um novo item ao carrinho
-        return [
-          ...prevCart,
-          {
-            ...item,
-            quantity,
-            complements,
-            totalItemPrice,
-          },
-        ];
-      }
-    });
-    console.log("Item Principal:", item);
-    console.log("Quantidade:", quantity);
-    console.log("Complementos:", complements);
-    console.log("Preço do Item Principal:", itemPrice);
-    console.log("Preço dos Complementos:", complementsPrice);
-    console.log("Preço Total do Item:", totalItemPrice);
-    // Atualiza o preço total do carrinho
-    setTotalPrice((prevTotal) => prevTotal + totalItemPrice);
+  // Função para rolar até uma categoria
+  const scrollToCategory = (category) => {
+    setActiveIndex(itemsCategorizar.indexOf(category));
+    sectionRefs.current[category]?.scrollIntoView({ behavior: "smooth" });
   };
 
+
   return (
-    <div className="p-4 ">
+    <div className="p-4">
       <div>
         <IoMenu className="text-[#212529] text-5xl absolute ml-2 left-0 z-10 h-12 px-2 bg-white" />
-
         <div className="relative flex gap-10 overflow-x-auto mb-9 bg-white scrollbar-hidden pl-14">
           {itemsCategorizar.map((item, index) => (
             <div
               key={index}
               onClick={() => scrollToCategory(item)}
               className={`min-w-[100px] h-12 flex items-center justify-center font-semibold cursor-pointer
-            ${
-              activeIndex === index
-                ? "border-b-[3px] border-black text-[#212529]"
-                : "text-gray-500 "
-            }`}
+                ${
+                  activeIndex === index
+                    ? "border-b-[3px] border-black text-[#212529]"
+                    : "text-gray-500"
+                }`}
             >
               {item}
             </div>
           ))}
         </div>
       </div>
-      {/* <h1 className="font-semibold text-xl text-gray-500 mb-4">PROMOÇÃO</h1> */}
-      <div className="max-w-2xl mx-auto bg-white  border-b-[1px] border-y-gray-300 mb-20 ">
+      <div className="max-w-2xl mx-auto bg-white border-b-[1px] border-y-gray-300 mb-20">
         {itemsCategorizar.map((category, index) => (
           <div key={index} ref={(el) => (sectionRefs.current[category] = el)}>
             <h1 className="font-semibold text-xl text-gray-500 bg-[#f8f9fa] py-4">
@@ -130,9 +82,7 @@ export default function Menu() {
                     <h3 className="font-semibold text-md text-[#212529]">
                       {item.name}
                     </h3>
-                    <p className="text-gray-600 text-base">
-                      {item.description}
-                    </p>
+                    <p className="text-gray-600 text-base">{item.description}</p>
                     <p className="font-semibold mt-1">{item.price}</p>
                   </div>
                   <img
@@ -146,41 +96,17 @@ export default function Menu() {
           </div>
         ))}
       </div>
-      {/* <h1 className="font-semibold text-xl text-gray-500 mb-4">PROMOÇÃO</h1>
-      <div className="max-w-2xl mx-auto bg-white  border-y-[1px] border-y-gray-300 shadow-lg mb-10 ">
-        {itemsCategorizar.map((item, index) => (
-          <div
-            key={index}
-            className="flex items-center gap-4 border-b border-gray-200 p-2 cursor-pointer"
-            onClick={() => setSelectedItem(item)}
-          >
-            <div className="flex-1 text-[#212529]">
-              <h3 className="font-semibold text-md text-[#212529]">
-                {item.name}
-              </h3>
-              <p className="text-gray-600 text-base">{item.description}</p>
-              <p className="font-semibold mt-1">{item.price}</p>
-            </div>
-            <img
-              src={item.image}
-              alt={item.name}
-              className="w-20 h-16 rounded-lg object-cover"
-            />
-          </div>
-        ))}
-      </div> */}
-
       <CartFooter
-        onClearCart={() => setCartItems([])}
+        // onClearCart={() => setCartItems([])}
         cartItems={cartItems || []}
         totalPrice={totalPrice || 0}
       />
-
       {selectedItem && (
         <Modal
+          key={selectedItem.id}
           item={selectedItem}
           onClose={() => setSelectedItem(null)}
-          onAddToCart={handleAddToCart}
+          // onAddToCart={handleAddToCart}
         />
       )}
     </div>

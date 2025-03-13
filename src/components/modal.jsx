@@ -1,20 +1,48 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback,memo } from "react";
 import { IoClose } from "react-icons/io5";
+import { useCart } from "@/app/context/contextComponent";
 
-export default function Modal({ item, onClose, onAddToCart }) {
+const Modal = ({ item, onClose, onAddToCart }) => {
+  const { addToCart } = useCart();
+  console.log("Modal Rendered")
   if (!item) return null;
+  const [quantity, setQuantity] = useState(1);
 
+  //console.log("Modal renderizado");
   // Estado para os complementos selecionados
+  // const [selectedComplements, setSelectedComplements] = useState(
+  //   item.complements?.reduce((acc, complement) => {
+  //     acc[complement.name] = { quantity: 0, price: complement.price };
+  //     return acc;
+  //   }, {}) || {}
+  // );
   const [selectedComplements, setSelectedComplements] = useState(
     item.complements?.reduce((acc, complement) => {
       acc[complement.name] = { quantity: 0, price: complement.price };
       return acc;
     }, {}) || {}
   );
-
+  useEffect(() => {
+    setQuantity(1);
+    setSelectedComplements(
+      item.complements?.reduce((acc, complement) => {
+        acc[complement.name] = { quantity: 0, price: complement.price };
+        return acc;
+      }, {}) || {}
+    );
+    setObservation("");
+  }, [item]); 
+  // const handleAdd = ((event) => {
+  //   event.preventDefault();
+  //   console.log("Adicionando ao carrinho   "+quantity);
+  //   onAddToCart(item); // Sempre passe 1 para a quantidade
+  //   onClose();
+  //   console.log(item)
+  // }, [item]);
+  
   // Estado para a quantidade do item principal
-  const [quantity, setQuantity] = useState(1);
+
 
   // Estado para observações
   const [observation, setObservation] = useState("");
@@ -29,10 +57,10 @@ export default function Modal({ item, onClose, onAddToCart }) {
 
   // Função para converter preço em número
   const parsePrice = (price) => {
-    if (typeof price === 'string') {
+    if (typeof price === "string") {
       return parseFloat(price.replace(/[^\d,]/g, "").replace(",", "."));
     }
-    if (typeof price === 'number') {
+    if (typeof price === "number") {
       return price;
     }
     console.warn(`Preço inválido: ${price}`);
@@ -47,12 +75,16 @@ export default function Modal({ item, onClose, onAddToCart }) {
       return acc + complementPrice * complement.quantity;
     }, 0);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   // Função para adicionar o item ao carrinho
-  const handleAdd = () => {
-    onAddToCart(item, quantity, selectedComplements);
-    onClose();
-  };
-
+  // const handleAdd = useCallback((event) => {
+  //   event.preventDefault();
+  //   console.log("Adicionando ao carrinho   "+quantity);
+  //   onAddToCart(item, quantity, selectedComplements); // Sempre passe 1 para a quantidade
+  //   onClose();
+  //   console.log(item)
+  // }, [item, selectedComplements, onAddToCart, onClose,quantity]);
+  
   // Função para alterar a quantidade de complementos
   const handleComplementChange = (complement, change) => {
     setSelectedComplements((prev) => {
@@ -67,6 +99,11 @@ export default function Modal({ item, onClose, onAddToCart }) {
       };
     });
   };
+  const handleAdd = useCallback((event) => {
+    event.preventDefault();
+    addToCart(item, quantity, selectedComplements);
+    onClose();
+  }, [item, quantity, selectedComplements, addToCart, onClose]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
@@ -87,7 +124,9 @@ export default function Modal({ item, onClose, onAddToCart }) {
             className="w-full h-full mx-auto object-cover mb-4"
           />
           <div className="p-4">
-            <h3 className="font-semibold text-lg text-[#212529]">{item.name}</h3>
+            <h3 className="font-semibold text-lg text-[#212529]">
+              {item.name}
+            </h3>
             <p className="text-gray-600 text-base">{item.description}</p>
             <p className="font-semibold my-1 mb-6">{item.price}</p>
           </div>
@@ -162,6 +201,7 @@ export default function Modal({ item, onClose, onAddToCart }) {
               <button
                 className="bg-[#181717] text-white px-4 py-3 rounded-sm font-semibold"
                 onClick={handleAdd}
+         
               >
                 Adicionar R$ {calculatedPrice.toFixed(2)}
               </button>
@@ -171,4 +211,6 @@ export default function Modal({ item, onClose, onAddToCart }) {
       </div>
     </div>
   );
+  
 }
+export default Modal;

@@ -1,5 +1,6 @@
 [
   {
+    "id": 1,
     "name": "X-Burguer",
     "description": "Hambúrguer artesanal com queijo cheddar",
     "price": "R$ 15,00",
@@ -13,6 +14,7 @@
     ]
   },
   {
+    "id": 2,
     "name": "X-Salada",
     "description": "Hambúrguer com queijo, alface e tomate",
     "price": "R$ 17,00",
@@ -25,6 +27,7 @@
     ]
   },
   {
+    "id": 3,
     "name": "X-Salada",
     "description": "Hambúrguer com queijo, alface e tomate",
     "price": "R$ 17,00",
@@ -37,6 +40,7 @@
     ]
   },
   {
+    "id": 4,
     "name": "X-Salada 2",
     "description": "Hambúrguer com queijo, alface e tomate",
     "price": "R$ 17,00",
@@ -49,6 +53,7 @@
     ]
   },
   {
+    "id": 5,
     "name": "X-Salada 2",
     "description": "Hambúrguer com queijo, alface e tomate",
     "price": "R$ 17,00",
@@ -61,6 +66,7 @@
     ]
   },
   {
+    "id": 6,
     "name": "X-Salada 1",
     "description": "Hambúrguer com queijo, alface e tomate",
     "price": "R$ 17,00",
