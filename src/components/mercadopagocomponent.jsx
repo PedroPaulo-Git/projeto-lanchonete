@@ -1,16 +1,27 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 
-const MercadoPagoComponent = ({ total }) => {
+const MercadoPagoComponent = () => {
+  const [total, setTotal] = useState(0);
   const mercadoPagoRef = useRef(null);
-  const cardFormRef = useRef(null); 
+  const cardFormRef = useRef(null);
+
+  useEffect(() => {
+    // Recupera o valor total do carrinho do localStorage
+    const storedTotal = localStorage.getItem("cartTotal");
+    if (storedTotal) {
+      setTotal(parseFloat(storedTotal)); // Converte para número
+    } else {
+      console.error("O total do carrinho não foi encontrado no localStorage");
+    }
+  }, []); // Apenas na primeira renderização
+
   useEffect(() => {
     if (total === undefined || isNaN(total)) {
       console.error("O valor do total é inválido:", total);
       return;
     }
     console.log(total);
-  
 
     // Função para inicializar o Mercado Pago
     const initializeMercadoPago = () => {
@@ -74,7 +85,7 @@ const MercadoPagoComponent = ({ total }) => {
             },
             onSubmit: (event) => {
               event.preventDefault();
-           
+             
               if (cardFormRef.current) {
                 const {
                   paymentMethodId: payment_method_id,
@@ -87,59 +98,58 @@ const MercadoPagoComponent = ({ total }) => {
                   identificationType,
                 } = cardFormRef.current.getCardFormData();
 
-              // Envia os dados do pagamento para o backend
-              const idempotencyKey = uuidv4();
-              console.log("Idempotency Key gerado:", idempotencyKey);
-              fetch("http://localhost:5000/process_payment", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-Idempotency-Key": idempotencyKey,
-                },
-                body: JSON.stringify({
-                  token,
-                  issuer_id,
-                  payment_method_id,
-                  transaction_amount: Number(amount),
-                  installments: Number(installments),
-                  description: "Compra no site",
-                  payer: {
-                    email,
-                    identification: {
-                      type: identificationType,
-                      number: identificationNumber,
-                    },
+                // Envia os dados do pagamento para o backend
+                const idempotencyKey = uuidv4();
+                console.log("Idempotency Key gerado:", idempotencyKey);
+                fetch("http://localhost:5000/process_payment", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "X-Idempotency-Key": idempotencyKey,
                   },
-                }),
-              })
-              .then((response) => {
-                console.log("Resposta bruta:", response);
-                
-                if (!response.ok) {
-                  return response.json().then(err => Promise.reject(err));
-                }
-                
-                return response.json();
-              })
-              .then((data) => {
-                if (data.qr_code) {
-                  console.log("Pagamento realizado com sucesso:", data);
-                  // Lógica para mostrar QR code
-                } else {
-                  console.warn("Pagamento aprovado mas sem dados de QR code:", data);
-                }
-              })
-              .catch((error) => {
-                console.error("Erro detalhado:", {
-                  message: error.message,
-                  details: error.details
+                  body: JSON.stringify({
+                    token,
+                    issuer_id,
+                    payment_method_id,
+                    transaction_amount: Number(amount),
+                    installments: Number(installments),
+                    description: "Compra no site",
+                    payer: {
+                      email,
+                      identification: {
+                        type: identificationType,
+                        number: identificationNumber,
+                      },
+                    },
+                  }),
+                })
+                .then((response) => {
+                  console.log("Resposta bruta:", response);
+                  
+                  if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err));
+                  }
+                  
+                  return response.json();
+                })
+                .then((data) => {
+                  if (data.qr_code) {
+                    console.log("Pagamento realizado com sucesso:", data);
+                    // Lógica para mostrar QR code
+                  } else {
+                    console.warn("Pagamento aprovado mas sem dados de QR code:", data);
+                  }
+                })
+                .catch((error) => {
+                  console.error("Erro detalhado:", {
+                    message: error.message,
+                    details: error.details
+                  });
                 });
-              });
-            }
-            else {
-              console.error("cardForm não foi inicializado corretamente.");
-            }
-          }
+              } else {
+                console.error("cardForm não foi inicializado corretamente.");
+              }
+            },
           },
         });
       }
@@ -160,28 +170,25 @@ const MercadoPagoComponent = ({ total }) => {
       // Caso o script já tenha sido carregado
       initializeMercadoPago();
     }
-  }, [total]);
+  }, [total]); // Executa sempre que o total mudar
+
   return (
-    <div className=" bg-white p-6 rounded-lg shadow-lg" >
-
-       <form id="form-checkout" className="mb-64">
-    <div id="form-checkout__cardNumber" class="container"></div>
-    <div id="form-checkout__expirationDate" class="container"></div>
-    <div id="form-checkout__securityCode" class="container"></div>
-    <input type="text" id="form-checkout__cardholderName" />
-    <select id="form-checkout__issuer"></select>
-    <select id="form-checkout__installments"></select>
-    <select id="form-checkout__identificationType"></select>
-    <input type="text" id="form-checkout__identificationNumber" />
-    <input type="email" id="form-checkout__cardholderEmail" />
-
-    <button type="submit" id="form-checkout__submit">Pagar</button>
-    <progress value="0" class="progress-bar">Carregando...</progress>
-  </form>
+    <div className=" bg-white p-6 rounded-lg shadow-lg">
+      <form id="form-checkout" className="mb-64">
+        <div id="form-checkout__cardNumber" className="container"></div>
+        <div id="form-checkout__expirationDate" className="container"></div>
+        <div id="form-checkout__securityCode" className="container"></div>
+        <input type="text" id="form-checkout__cardholderName" />
+        <select id="form-checkout__issuer"></select>
+        <select id="form-checkout__installments"></select>
+        <select id="form-checkout__identificationType"></select>
+        <input type="text" id="form-checkout__identificationNumber" />
+        <input type="email" id="form-checkout__cardholderEmail" />
+        <button type="submit" id="form-checkout__submit">Pagar</button>
+        <progress value="0" className="progress-bar">Carregando...</progress>
+      </form>
     </div>
   );
-  
-  
 };
 
 export default MercadoPagoComponent;

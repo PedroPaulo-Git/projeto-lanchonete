@@ -1,108 +1,100 @@
-import React from "react";
+import React, { useState } from "react";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoMdClose } from "react-icons/io";
-const modalAddress = ({ setmodalAddressOpen }) => {
+import { useCart } from "../../app/context/contextComponent";
+
+const ModalAddress = ({ setmodalAddressOpen }) => {
+  const [address, setAddress] = useState("");
+  const [neighborhood, setNeighborhood] = useState("");
+  const [street, setStreet] = useState("");
+  const [number, setNumber] = useState("");
+  const [complement, setComplement] = useState("");
+  const {setSavedAddress } = useCart();
+
+  // const handleSaveAddress = (e) => {
+  //   e.preventDefault();
+
+  //   // Recupera os dados atuais do localStorage
+  //   const userData = JSON.parse(localStorage.getItem("userData")) || {};
+
+  //   // Adiciona os novos dados ao userData
+  //   userData.address = { address, neighborhood, street, number, complement };
+
+  //   // Salva no localStorage
+  //   localStorage.setItem("userData", JSON.stringify(userData));
+
+  //   // Fecha o modal
+  //   setmodalAddressOpen(false);
+  //   console.log(userData)
+  // };
+
+  const handleSaveAddress = (e) => {
+    e.preventDefault();
+    const userData = JSON.parse(localStorage.getItem("userData")) || {};
+    userData.address = { address, neighborhood, street, number, complement };
+    localStorage.setItem("userData", JSON.stringify(userData));
+  
+    setSavedAddress(userData.address); // Atualiza o contexto global
+  
+    setmodalAddressOpen(false);
+  };
+  
   return (
-    <div className="h-screen">
+    <div className="h-screen z-30">
       <section>
-        <div className="flex justify-between p-4 items-center bg-white">
-          <IoIosArrowBack
-            className="text-xl"
-            onClick={() => setmodalAddressOpen(false)}
-          />
+        <div className="flex justify-between p-5 items-center bg-white">
+          <IoIosArrowBack className="text-xl" onClick={() => setmodalAddressOpen(false)} />
           <p>Endereço de entrega</p>
-          <IoMdClose
-            className="text-xl"
-            onClick={() => setmodalAddressOpen(false)}
-          />
+          <IoMdClose className="text-xl" onClick={() => setmodalAddressOpen(false)} />
         </div>
-        <div className="mx-auto max-w-screen-xl ">
+        <div className="mx-auto max-w-screen-xl">
           <div className="grid grid-cols-1 gap-x-16 gap-y-8 lg:grid-cols-5">
             <div className="rounded-lg p-4 lg:col-span-3 lg:p-12">
-              <form action="#" className="space-y-4">
-                {/* Endereço e Bairro */}
+              <form className="space-y-4" onSubmit={handleSaveAddress}>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="sr-only" htmlFor="address">
-                      Endereço
-                    </label>
-                    <input
-                      className="w-full rounded-lg shadow-inner border bg-white border-gray-200 p-3 text-sm"
-                      placeholder="Endereço"
-                      type="text"
-                      id="address"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="sr-only" htmlFor="neighborhood">
-                      Bairro
-                    </label>
-                    <input
-                      className="w-full rounded-lg shadow-inner border bg-white border-gray-200 p-3 text-sm"
-                      placeholder="Bairro"
-                      type="text"
-                      id="neighborhood"
-                    />
-                  </div>
-                </div>
-
-                {/* Rua e Número na mesma linha */}
-                <div className="grid grid-cols-10 gap-4">
-                  <div className="col-span-7">
-                    <label className="sr-only" htmlFor="street">
-                      Rua
-                    </label>
-                    <input
-                      className="w-full rounded-lg shadow-inner border bg-white border-gray-200 p-3 text-sm"
-                      placeholder="Rua"
-                      type="text"
-                      id="street"
-                    />
-                  </div>
-
-                  <div className="col-span-3 ">
-                    <label className="sr-only" htmlFor="number">
-                      Número
-                    </label>
-                    <input
-                      className="w-full rounded-lg shadow-inner border bg-white border-gray-200 p-3 text-sm"
-                      placeholder="N°"
-                      type="text"
-                      id="number"
-                    />
-                  </div>
-                </div>
-
-                {/* Complemento */}
-                <div>
-                  <label className="sr-only" htmlFor="complement">
-                    Complemento
-                  </label>
-                  <input
-                    className="w-full rounded-lg bg-white shadow-inner border border-gray-200 p-3 text-sm"
-                    placeholder="Complemento (opcional)"
+                  <input className="w-full rounded-lg shadow-inner border bg-white border-gray-200 p-3 text-sm"
+                    placeholder="Endereço"
                     type="text"
-                    id="complement"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
+                  <input className="w-full rounded-lg shadow-inner border bg-white border-gray-200 p-3 text-sm"
+                    placeholder="Bairro"
+                    type="text"
+                    value={neighborhood}
+                    onChange={(e) => setNeighborhood(e.target.value)}
                   />
                 </div>
-
-                <div className="mt-4">
-                  <button
-                    type="submit"
-                    className="inline-block w-[92%] absolute bottom-10 rounded-lg bg-black px-5 py-3 font-medium text-white sm:w-auto"
-                  >
-                   Cadastrar endereço
-                  </button>
+                <div className="grid grid-cols-10 gap-4">
+                  <input className="col-span-7 w-full rounded-lg shadow-inner border bg-white border-gray-200 p-3 text-sm"
+                    placeholder="Rua"
+                    type="text"
+                    value={street}
+                    onChange={(e) => setStreet(e.target.value)}
+                  />
+                  <input className="col-span-3 w-full rounded-lg shadow-inner border bg-white border-gray-200 p-3 text-sm"
+                    placeholder="N°"
+                    type="text"
+                    value={number}
+                    onChange={(e) => setNumber(e.target.value)}
+                  />
                 </div>
+                <input className="w-full rounded-lg bg-white shadow-inner border border-gray-200 p-3 text-sm"
+                  placeholder="Complemento (opcional)"
+                  type="text"
+                  value={complement}
+                  onChange={(e) => setComplement(e.target.value)}
+                />
+                <button type="submit" className="inline-block w-full mt-28 bottom-10 rounded-sm bg-black px-5 py-3 font-medium text-white sm:w-auto">
+                  Cadastrar endereço
+                </button>
               </form>
             </div>
           </div>
         </div>
       </section>
-      <input placeholder="" type="text" />
     </div>
   );
 };
 
-export default modalAddress;
+export default ModalAddress;

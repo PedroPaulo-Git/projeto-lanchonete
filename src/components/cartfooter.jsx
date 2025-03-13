@@ -96,7 +96,9 @@ export default function CartFooter({setmodalAddressOpen}) {
   
     // Salvando o total no localStorage apenas se for um número válido
     localStorage.setItem("cartTotal", total > 0 ? total.toFixed(2) : "0.00");
+    
     router.push(`/checkout`);
+    setIsCartOpen(!isCartOpen);
   };
   
   

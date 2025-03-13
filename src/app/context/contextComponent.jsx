@@ -1,11 +1,26 @@
 // contexts/CartContext.js
 "use client";
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback,useEffect } from 'react';
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
+  const [modalAddressOpen, setmodalAddressOpen] = useState(false);
+  const [savedAddress, setSavedAddress] = useState(null);
+
+
+  useEffect(() => {
+    const storedCart = localStorage.getItem("cartItems");
+    if (storedCart) {
+      setCartItems(JSON.parse(storedCart));
+    }
+  }, []);
+
+  // Atualizar localStorage sempre que cartItems mudar
+  useEffect(() => {
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const parsePrice = (price) => {
     if (typeof price === "string") {
@@ -46,7 +61,7 @@ export const CartProvider = ({ children }) => {
   const clearCart = useCallback(() => setCartItems([]), []);
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, clearCart,removeFromCart }}>
+    <CartContext.Provider value={{ cartItems, addToCart, clearCart,removeFromCart, modalAddressOpen, setmodalAddressOpen, savedAddress, setSavedAddress }}>
       {children}
     </CartContext.Provider>
   );
