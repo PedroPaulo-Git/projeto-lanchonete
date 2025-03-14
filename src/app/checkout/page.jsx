@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 //import MercadoPagoComponent from "@/components/mercadopagocomponent";
 import HeaderCheckout from "./header";
 import ModalAddress from "@/components/modals/modalAddress";
+import PaymentModal from "./paymentModal";
 import Footer from "@/components/footer";
 import { FiMapPin } from "react-icons/fi";
 import { CiClock2 } from "react-icons/ci";
@@ -29,16 +30,23 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1); // Controla a etapa atual do checkout
   const [showPopUp, setShowPopUp] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
   const [userName, setUserName] = useState("");
   const [userPhone, setUserPhone] = useState("");
   const [userAddress, setUserAddress] = useState("");
   const [userAddressNumber, setUserAddressNumber] = useState("");
+  const [userCpf, setUserCpf] = useState("");
 
   const [progress, setProgress] = useState(10);
 
   const handleSelect = (method) => {
     setSelectedPayment(method);
     console.log(selectedPayment);
+  };
+
+  const handlePayment = () => {
+    setIsPaymentModalOpen(true);
   };
 
   const handleToggleAddress = () => {
@@ -85,7 +93,41 @@ export default function CheckoutPage() {
   //   console.log("MODAL ADDRESS OPEN:", modalAddressOpen);
   // }, [selectedPayment, modalAddressOpen]);
 
+  const handleCpfChange = (event) => {
+    const cpf = event.target.value;
+    setUserCpf(cpf);
+    const userData = JSON.parse(localStorage.getItem("userData")) || {};
+    localStorage.setItem("userData", JSON.stringify({ ...userData, cpf }));
+  };
   useEffect(() => {
+    const updateUserData = () => {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+  
+      if (userData) {
+        if (userData.address) {
+          setSavedAddress(userData.address);
+          setUserAddress(userData.address.street);
+          setUserAddressNumber(userData.address.number);
+        }
+        if (userData.cpf) setUserCpf(userData.cpf);
+        if (userData.name) setUserName(userData.name);
+        if (userData.phone) setUserPhone(userData.phone);
+      }
+    };
+  
+    updateUserData(); // Atualiza os dados na montagem
+  
+    const handleStorageChange = () => {
+      updateUserData();
+    };
+  
+    window.addEventListener("storage", handleStorageChange);
+  
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [setUserAddress,setUserAddressNumber,userAddress,userAddressNumber]);
+  
+  useEffect(() => {
+   // const userData = JSON.parse(localStorage.getItem("userData"));
     const cartTotal = localStorage.getItem("cartTotal");
     //console.log(selectedPayment);
     // Verificar se o valor recuperado é um número válido
@@ -98,15 +140,14 @@ export default function CheckoutPage() {
       console.log("Total do carrinho:", total);
       setcartValueTotal(total);
     }
-    const userData = JSON.parse(localStorage.getItem("userData"));
-
-    if (userData?.address) {
-      setSavedAddress(userData.address);
-      setUserAddress(userData.address.street);
-      setUserAddressNumber(userData.address.number);
-    } else {
-      console.log("not saved");
-    }
+   
+    // if (userData.address) {
+    //   setSavedAddress(userData.address);
+    //   setUserAddress(userData.address.street);
+    //   setUserAddressNumber(userData.address.number);
+    // } else {
+    //   console.log("not saved");
+    // }
 
     // if (userData?.address) {
     //   setUserAddressNumber(userData.number);
@@ -114,21 +155,25 @@ export default function CheckoutPage() {
     // if (userData?.address) {
     //   setUserAddress(userData.street);
     // }
-    if (userData.name) {
-      setUserName(userData.name);
-    }
+    // if (userData.cpf) {
+    //   setUserCpf(userData.cpf);
+    // }
+    
+    // if (userData.name) {
+    //   setUserName(userData.name);
+    // }
 
-    if (userData.phone) {
-      setUserPhone(userData.phone);
-    }
+    // if (userData.phone) {
+    //   setUserPhone(userData.phone);
+    // }
 
-    const handleStorageChange = () => {
-      const updatedUserData = JSON.parse(localStorage.getItem("userData"));
-      if (updatedUserData?.address) setSavedAddress(updatedUserData.address);
-    };
+    // const handleStorageChange = () => {
+    //   const updatedUserData = JSON.parse(localStorage.getItem("userData"));
+    //   if (updatedUserData?.address) setSavedAddress(updatedUserData.address);
+    // };
 
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+    // window.addEventListener("storage", handleStorageChange);
+    // return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const [isSmallScreen, setIsSmallScreen] = useState(false);
@@ -307,8 +352,8 @@ export default function CheckoutPage() {
     <div
       className={`my-div ${
         isSmallScreen
-          ? "pb-36 overflow-auto h-screen"
-          : " h-screen overflow-auto"
+          ? "pb-80 overflow-auto h-screen"
+          : " overflow-auto h-screen "
       }`}
     >
       <div>
@@ -316,9 +361,9 @@ export default function CheckoutPage() {
           <p>Previsão para entrega</p>
           <h2 className="text-xl font-extrabold mb-4">22:07 - 22:22</h2>
         </div>
-        <div className={`my-div ${isSmallScreen ? "pb-36" : "pb-80"}`}>
-          <div className="px-2">
-            <p className="font-semibold">informações para entrega</p>
+        <div className={`my-div ${isSmallScreen ? "" : "pb-80"}`}>
+          <div className="p-2">
+            <p className="font-semibold py-2">informações para entrega</p>
             <div className="flex items-center gap-3 bg-white rounded-sm px-2 text-gray-700 mt-2">
               <FaRegUser />
               <span className="">
@@ -330,7 +375,7 @@ export default function CheckoutPage() {
               <BsHouses />
               <span className="">
                 <p className="font-medium">
-                  {userAddress}, {userAddressNumber}
+                {savedAddress.street},{savedAddress.number}
                 </p>
               </span>
             </div>
@@ -384,10 +429,20 @@ export default function CheckoutPage() {
               </span>
             </div>
           </div>
+          <div className="px-2 pt-10">
+            <p className="font-semibold ml-1">CPF/CNPJ</p>
+            <input
+              value={userCpf}
+              onChange={handleCpfChange}
+              className="border w-full p-2 rounded-lg border-gray-200 bg-white mt-2"
+              type="text"
+              placeholder="Digite o CPF/CNPJ"
+            />
+          </div>
         </div>
         <div className="fixed bottom-0 w-full bg-white">
           <button
-            onClick={handleNextStep}
+            onClick={handlePayment}
             type="button"
             disabled={!savedAddress}
             className={`flex justify-center my-4 w-[92%] mx-auto rounded-lg px-5 py-3 font-medium text-white sm:w-auto ${
@@ -402,20 +457,26 @@ export default function CheckoutPage() {
   );
 
   return (
-    <div className="container mx-auto p-4">
-      {showPopUp && <AddressNotSavePopUp />}
-      {modalAddressOpen && (
-        <>
-          <ModalAddress setmodalAddressOpen={setmodalAddressOpen} />
-        </>
+    <div className="">
+      {isPaymentModalOpen ? (
+        <PaymentModal selectedPayment={selectedPayment} />
+      ) : (
+        <div>
+          {showPopUp && <AddressNotSavePopUp />}
+          {modalAddressOpen && (
+            <>
+              <ModalAddress setmodalAddressOpen={setmodalAddressOpen} />
+            </>
+          )}
+          <HeaderCheckout
+            progress={progress}
+            handlePreviousStep={handlePreviousStep}
+          />
+          {step === 1 && renderDeliveryStep()}
+          {step === 2 && renderPaymentStep()}
+          {step === 3 && renderConfirmationStep()}
+        </div>
       )}
-      <HeaderCheckout
-        progress={progress}
-        handlePreviousStep={handlePreviousStep}
-      />
-      {step === 1 && renderDeliveryStep()}
-      {step === 2 && renderPaymentStep()}
-      {step === 3 && renderConfirmationStep()}
     </div>
   );
 }

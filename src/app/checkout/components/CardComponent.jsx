@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 
-const MercadoPagoComponent = () => {
+const CardComponent = () => {
   const [total, setTotal] = useState(0);
   const mercadoPagoRef = useRef(null);
   const cardFormRef = useRef(null);
@@ -191,4 +191,4 @@ const MercadoPagoComponent = () => {
   );
 };
 
-export default MercadoPagoComponent;
+export default CardComponent;
