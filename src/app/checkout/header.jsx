@@ -1,98 +1,94 @@
-import React from 'react'
+import React from "react";
 import { IoIosArrowBack } from "react-icons/io";
 import { useRouter } from "next/navigation";
+import { IoClose } from "react-icons/io5";
+import { MdDeliveryDining } from "react-icons/md";
+import { MdOutlinePayments } from "react-icons/md";
+import { AiOutlineFileDone } from "react-icons/ai";
 
-const header = () => {
-    const router = useRouter();
+const HeaderCheckout = ({ progress, handlePreviousStep }) => {
+  const router = useRouter();
 
-    const handleGoHome = () => {
-      router.push("/");
-    };
+  const handleGoHome = () => {
+    document.body.style.overflow = "auto";
+    router.push("/");
+  };
+
+  const handleBackStep = () => {
+    if (progress < 100) {
+      handlePreviousStep();
+    }
+    if (progress < 20) {
+      handleGoHome();
+    }
+  };
+
   return (
     <>
-    <div className='flex justify-between items-center p-4 bg-white shadow-sm '>
-        <IoIosArrowBack onClick={handleGoHome}/>
+      <div className="flex justify-between items-center p-4 bg-white shadow-sm">
+        <IoIosArrowBack onClick={handleBackStep} />
         <p>Checkout</p>
-        <p></p>
-    </div>
-    <div>
-  <h2 className="sr-only">Steps</h2>
+        <IoClose onClick={handleGoHome} />
+      </div>
+      <div>
+        <h2 className="sr-only">Steps</h2>
+        <div className="bg-white p-4">
+          <div className="overflow-hidden rounded-full bg-gray-200">
+            <div
+              className="h-2 rounded-full bg-gray-600 transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
 
-  <div className='bg-white p-4'>
-    <div className="overflow-hidden rounded-full bg-gray-200 ">
-      <div className="h-2 w-1/2 rounded-full bg-gray-600"></div>
-    </div>
-
-    <ol className="mt-4 grid grid-cols-3 text-sm font-medium text-gray-500">
-      <li className="items-center justify-center text-black  sm:gap-1.5">
-        <span className="hidden sm:inline"> Details </span>
-
-        <svg
-          className="size-6 sm:size-5 ml-2"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"
-          />
-        </svg>
-        <p>Entrega</p>
-      </li>
-
-      <li className=" flex flex-col  items-center justify-center text-black sm:gap-1.5">
-        <span className="hidden sm:inline"> Address </span>
-
-        <svg
-          className="size-6 sm:size-5"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-        </svg>
-        <p>Pagamento</p>
-      </li>
-
-      <li className="items-right justify-items-end text-gray-400 sm:gap-1.5">
-        <span className="hidden sm:inline"> Payment </span>
-
-        <svg
-          className="size-6 sm:size-5 mr-5"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-          />
-        </svg>
-        <p>Concluído</p>
-      </li>
-    </ol>
-  </div>
-</div>
+          <ol className="mt-4 grid grid-cols-3 text-sm font-medium text-gray-500">
+            <li
+              className={`items-center justify-items-start ${
+                progress >= 33 ? "text-black" : "text-gray-400"
+              } sm:gap-1.5`}
+            >
+              <span className="hidden sm:inline">Details</span>
+              <p
+                className={`items-center flex flex-col justify-center ${
+                  progress ? "text-black" : "text-gray-400"
+                } sm:gap-1.5`}
+              >
+                <MdDeliveryDining className="text-xl" />
+                Entrega
+              </p>
+            </li>
+            <li
+              className={`flex flex-col items-center justify-center ${
+                progress >= 66 ? "text-black" : "text-gray-400"
+              } sm:gap-1.5`}
+            >
+              <span className="hidden sm:inline">Address</span>
+              <p
+                className={`items-center flex flex-col justify-center ${
+                  progress >= 50 ? "text-black" : "text-gray-400"
+                } sm:gap-1.5`}
+              >
+                <MdOutlinePayments className="text-xl" /> Pagamento
+              </p>
+            </li>
+            <li
+              className={`items-right justify-items-end ${
+                progress === 100 ? "text-black" : "text-gray-400"
+              } sm:gap-1.5`}
+            >
+              <span className="hidden sm:inline">Payment</span>
+              <p
+                className={`items-center  flex flex-col justify-center ${
+                  progress === 100 ? "text-black" : "text-gray-400"
+                } sm:gap-1.5`}
+              >
+                <AiOutlineFileDone className="text-xl" /> Concluído
+              </p>
+            </li>
+          </ol>
+        </div>
+      </div>
     </>
-  )
-}
+  );
+};
 
-export default header
+export default HeaderCheckout;
