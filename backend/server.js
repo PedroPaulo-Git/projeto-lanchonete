@@ -49,6 +49,8 @@ app.post("/process_payment", async (req, res) => {
       body: paymentData,
       requestOptions: { idempotencyKey },
     });
+    console.log("Dados recebidos no backend:", req.body);
+    console.log("-----------------",paymentData)
     console.log("Status do Mercado Pago:", paymentResponse.status);
     console.log("Resposta completa:", paymentResponse);
 
