@@ -24,7 +24,7 @@ const client = new MercadoPagoConfig({
 app.post("/process_payment", async (req, res) => {
   try {
     const { payment_method_id } = req.body;
-
+    console.log("Dados recebidos no backend:", req.body);
     const paymentData = {
       transaction_amount: req.body.transaction_amount,
       token: req.body.token,

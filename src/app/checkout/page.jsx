@@ -51,7 +51,7 @@ export default function CheckoutPage() {
 
   const handleToggleAddress = () => {
     setmodalAddressOpen(true);
-
+    document.body.style.overflowY = "hidden";
     if (!modalAddressOpen) {
       document.body.style.overflow = "auto"; // Restore scroll
     }
@@ -102,7 +102,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     const updateUserData = () => {
       const userData = JSON.parse(localStorage.getItem("userData"));
-  
+
       if (userData) {
         if (userData.address) {
           setSavedAddress(userData.address);
@@ -114,20 +114,20 @@ export default function CheckoutPage() {
         if (userData.phone) setUserPhone(userData.phone);
       }
     };
-  
+
     updateUserData(); // Atualiza os dados na montagem
-  
+
     const handleStorageChange = () => {
       updateUserData();
     };
-  
+
     window.addEventListener("storage", handleStorageChange);
-  
+
     return () => window.removeEventListener("storage", handleStorageChange);
-  }, [setUserAddress,setUserAddressNumber,userAddress,userAddressNumber]);
-  
+  }, [setUserAddress, setUserAddressNumber, userAddress, userAddressNumber]);
+
   useEffect(() => {
-   // const userData = JSON.parse(localStorage.getItem("userData"));
+    // const userData = JSON.parse(localStorage.getItem("userData"));
     const cartTotal = localStorage.getItem("cartTotal");
     //console.log(selectedPayment);
     // Verificar se o valor recuperado é um número válido
@@ -140,7 +140,7 @@ export default function CheckoutPage() {
       console.log("Total do carrinho:", total);
       setcartValueTotal(total);
     }
-   
+
     // if (userData.address) {
     //   setSavedAddress(userData.address);
     //   setUserAddress(userData.address.street);
@@ -158,7 +158,7 @@ export default function CheckoutPage() {
     // if (userData.cpf) {
     //   setUserCpf(userData.cpf);
     // }
-    
+
     // if (userData.name) {
     //   setUserName(userData.name);
     // }
@@ -201,7 +201,7 @@ export default function CheckoutPage() {
 
   // Etapa 1: Local de entrega
   const renderDeliveryStep = () => (
-    <div className="p-4  h-screen overflow-auto pb-80">
+    <div className="p-4  overflow-auto ">
       <h2 className="text-lg font-semibold mb-4">Confirmar endereço</h2>
 
       <form>
@@ -375,7 +375,7 @@ export default function CheckoutPage() {
               <BsHouses />
               <span className="">
                 <p className="font-medium">
-                {savedAddress.street},{savedAddress.number}
+                  {savedAddress.street},{savedAddress.number}
                 </p>
               </span>
             </div>
@@ -463,18 +463,21 @@ export default function CheckoutPage() {
       ) : (
         <div>
           {showPopUp && <AddressNotSavePopUp />}
-          {modalAddressOpen && (
+          {modalAddressOpen ? (
             <>
               <ModalAddress setmodalAddressOpen={setmodalAddressOpen} />
             </>
+          ) : (
+            <>
+              <HeaderCheckout
+                progress={progress}
+                handlePreviousStep={handlePreviousStep}
+              />
+              {step === 1 && renderDeliveryStep()}
+              {step === 2 && renderPaymentStep()}
+              {step === 3 && renderConfirmationStep()}
+            </>
           )}
-          <HeaderCheckout
-            progress={progress}
-            handlePreviousStep={handlePreviousStep}
-          />
-          {step === 1 && renderDeliveryStep()}
-          {step === 2 && renderPaymentStep()}
-          {step === 3 && renderConfirmationStep()}
         </div>
       )}
     </div>

@@ -55,8 +55,8 @@ const PixComponent = ({ selectedPayment }) => {
       console.log(userData.email)
       console.log(userData)
       const paymentData = {
-        transaction_amount: 100, // Defina o valor correto
-        token: "TOKEN_DO_CARTAO_OU_PIX",
+        transaction_amount: 1.00, // Defina o valor correto
+        token: "TEST-416333787685811-030510-e95be0b60348ecf7473d8cd21aaf5e12-290240028",
         description: "Compra no site",
         installments: 1,
         payment_method_id: selectedPayment === "pix" ? "pix" : "visa", // Define dinamicamente
@@ -105,7 +105,7 @@ const PixComponent = ({ selectedPayment }) => {
               selectedPayment ? "bg-black" : "bg-gray-400 cursor-not-allowed"
             }`}
             onClick={handlePayment}
-            disabled={isLoading || qrCode} // Desabilita o botão enquanto o QR code é gerado ou já foi gerado
+            // disabled={isLoading || qrCode} // Desabilita o botão enquanto o QR code é gerado ou já foi gerado
           >
             <div className="text-center flex items-center">
               {/* Exibe o spinner ou o texto dependendo do estado de isLoading */}
