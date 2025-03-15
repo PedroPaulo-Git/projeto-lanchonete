@@ -23,13 +23,14 @@ const client = new MercadoPagoConfig({
 // Rota para processar o pagamento
 app.post("/process_payment", async (req, res) => {
   try {
-    // Dados do pagamento
+    const { payment_method_id } = req.body;
+
     const paymentData = {
       transaction_amount: req.body.transaction_amount,
       token: req.body.token,
       description: req.body.description,
       installments: req.body.installments,
-      payment_method_id: req.body.payment_method_id,
+      payment_method_id: payment_method_id,
       issuer_id: req.body.issuer_id,
       payer: {
         email: req.body.payer.email,
@@ -40,44 +41,67 @@ app.post("/process_payment", async (req, res) => {
       },
     };
 
-    // Gerar um idempotencyKey único se não existir no cabeçalho
+    // Gerar um idempotencyKey único
     const idempotencyKey = req.headers["X-Idempotency-Key"] || uuidv4();
 
-    // Criar o pagamento utilizando o SDK do Mercado Pago
+    // Criar pagamento no Mercado Pago
     const payment = new Payment(client);
     const paymentResponse = await payment.create({
       body: paymentData,
       requestOptions: { idempotencyKey },
     });
-    console.log("Dados recebidos no backend:", req.body);
-    console.log("-----------------",paymentData)
-    console.log("Status do Mercado Pago:", paymentResponse.status);
-    console.log("Resposta completa:", paymentResponse);
+
+    console.log("Resposta do Mercado Pago:", paymentResponse);
 
     if (paymentResponse.status >= 400 || !paymentResponse.id) {
       throw new Error(`Pagamento recusado: ${paymentResponse.status}`);
     }
 
-    
+    // Verifica se o pagamento é via Pix
+    if (payment_method_id === "pix") {
+      const qrCodeText = paymentResponse.point_of_interaction?.transaction_data?.qr_code;
+      let qrCodeBase64 = null;
+
+      if (qrCodeText) {
+        qrCodeBase64 = await gerarQRCodeBase64(qrCodeText);
+      }
+
+      return res.json({
+        status: paymentResponse.status,
+        id: paymentResponse.id,
+        status_detail: paymentResponse.status_detail,
+        qr_code: qrCodeText,
+        qr_code_base64: qrCodeBase64,
+      });
+    }
+
+    // Se for cartão, retorna apenas os dados normais do pagamento
     res.json({
       status: paymentResponse.status,
       id: paymentResponse.id,
       status_detail: paymentResponse.status_detail,
-      qr_code: paymentResponse.point_of_interaction?.transaction_data?.qr_code,
     });
   } catch (error) {
     console.error("Erro detalhado:", {
       message: error.message,
       stack: error.stack,
-      response: error.response?.data
+      response: error.response?.data,
     });
-    res.status(500).json({ 
+    res.status(500).json({
       error: error.message || "Erro no processamento",
-      details: error.response?.data 
+      details: error.response?.data,
     });
   }
 });
 
+// Função para converter QR Code para Base64
+async function gerarQRCodeBase64(qrText) {
+  const qrResponse = await axios.get(
+    `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrText)}&size=200x200`,
+    { responseType: "arraybuffer" }
+  );
+  return Buffer.from(qrResponse.data).toString("base64");
+}
 // app.post('/process_payment', processPayment);
 
 // app.post("/process_payment", async (req, res) => {
