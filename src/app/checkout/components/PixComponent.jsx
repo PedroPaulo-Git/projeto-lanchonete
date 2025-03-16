@@ -10,6 +10,10 @@ const PixComponent = ({ selectedPayment }) => {
   const [userData, setUserData] = useState(null);
   const [showCopyPix, setShowCopyPix] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [paymentId,setPaymentId] = useState(null)
+
+
+
   const handleCopyClick = () => {
     // Copiar o QR Code para a área de transferência
     if (qrCode) {
@@ -33,7 +37,29 @@ const PixComponent = ({ selectedPayment }) => {
       setUserData(JSON.parse(storedUserData));
     }
   }, []);
+  
+  useEffect(() => {
+    const checkPaymentStatus = async () => {
+      try {
+        console.log("Enviando requisição para:", `http://localhost:5000/payment_status?paymentId=${paymentId}`);
 
+        const response = await axios.get(`http://localhost:5000/payment_status?paymentId=${paymentId}`);
+
+  
+        if (response.data.status === "approved") {
+          window.location.href = "/success"; // Redireciona para a página de sucesso
+        }
+      } catch (error) {
+        console.error("Erro ao verificar status do pagamento:", error);
+      }
+    };
+  
+    if (qrCode) {
+      const interval = setInterval(checkPaymentStatus, 5000); // Verifica a cada 5 segundos
+      return () => clearInterval(interval);
+    }
+  }, [qrCode]);
+  
   // Função para formatar CPF no padrão XXX.XXX.XXX-XX
   const formatCPF = (cpf) => {
     if (!cpf) return "";
@@ -55,7 +81,7 @@ const PixComponent = ({ selectedPayment }) => {
       console.log(userData.email)
       console.log(userData)
       const paymentData = {
-        transaction_amount: 1.00, // Defina o valor correto
+        transaction_amount: 0.01, // Defina o valor correto
         token: "TEST-416333787685811-030510-e95be0b60348ecf7473d8cd21aaf5e12-290240028",
         description: "Compra no site",
         installments: 1,
@@ -71,10 +97,14 @@ const PixComponent = ({ selectedPayment }) => {
       
       console.log(paymentData.payer.email);
       console.log(paymentData);
+     
       const response = await axios.post(
         "http://localhost:5000/process_payment",
         paymentData
       );
+
+      setPaymentId(response.data.id);
+      console.log("ID DO PAGAMENTO >>>>>>>>> ",response.data.id);
       console.log(response.data);
       console.log(response);
       setQrCode(response.data.qr_code);

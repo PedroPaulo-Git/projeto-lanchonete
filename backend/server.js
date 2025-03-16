@@ -102,96 +102,82 @@ async function gerarQRCodeBase64(qrText) {
   );
   return Buffer.from(qrResponse.data).toString("base64");
 }
-// app.post('/process_payment', processPayment);
 
-// app.post("/process_payment", async (req, res) => {
+
+// app.post("/create-preference", async (req, res) => {
 //   try {
-//     const paymentData = req.body;
-//     const response = await axios.post(
-//       "https://api.mercadopago.com/v1/payments",
-//       paymentData,
-//       {
-//         headers: {
-//           "Content-Type": "application/json",
-//           Authorization: `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`,
-//           "X-Idempotency-Key": req.headers["X-Idempotency-Key"], // Adicionando o idempotencyKey
-//         }
-//       }
-//     );
-//     res.json(response.data);
+//     const { title, unit_price } = req.body;
+
+//     if (!title || !unit_price) {
+//       return res.status(400).json({ error: "Nome e preço são obrigatórios." });
+//     }
+
+//     const preference = new Preference(client);
+
+//     const response = await preference.create({
+//       body: {
+//         items: [
+//           {
+//             title: title,
+//             quantity: 1,
+//             unit_price: parseFloat(unit_price), // Convertendo para número
+//           },
+//         ],
+//         sandbox_init_point: true,
+//       },
+//     });
+
+//     return res.json({
+//       id: response.id,
+//       init_point: response.init_point,
+//     });
 //   } catch (error) {
-//     console.error("Erro completo:", error.response?.data);
-//     res.status(500).json({ error: "Erro no processamento do pagamento" });
+//     console.error("Erro ao criar preferência:", error);
+//     res.status(500).json({ error: "Erro ao criar pagamento" });
 //   }
 // });
 
-app.post("/create-preference", async (req, res) => {
-  try {
-    const { title, unit_price } = req.body;
+// app.use(bodyParser.json());
 
-    if (!title || !unit_price) {
-      return res.status(400).json({ error: "Nome e preço são obrigatórios." });
-    }
-
-    const preference = new Preference(client);
-
-    const response = await preference.create({
-      body: {
-        items: [
-          {
-            title: title,
-            quantity: 1,
-            unit_price: parseFloat(unit_price), // Convertendo para número
-          },
-        ],
-        sandbox_init_point: true,
-      },
-    });
-
-    return res.json({
-      id: response.id,
-      init_point: response.init_point,
-    });
-  } catch (error) {
-    console.error("Erro ao criar preferência:", error);
-    res.status(500).json({ error: "Erro ao criar pagamento" });
-  }
-});
-
-app.use(bodyParser.json());
-
-let paymentStatus = "pending"; // Estado inicial do pagamento
+// let paymentStatus = "pending"; // Estado inicial do pagamento
 
 // Endpoint para receber Webhooks do Mercado Pago
-app.post("/webhook", (req, res) => {
-  console.log("Webhook recebido:", req.body);
+app.post("/webhook", async (req, res) => {
+  console.log("Notificação recebida:", req.body);
 
   // Verifica se a notificação é sobre atualização de pagamento
-  if (
-    req.body.action === "payment.updated" &&
-    req.body.data &&
-    req.body.data.id
-  ) {
+  try {
+    console.log("Notificação recebida:", req.body);
+
     const paymentId = req.body.data.id;
-    console.log(paymentId);
-    console.log(req.body);
+    
 
-    // Consulta o status do pagamento na API do Mercado Pago
-    axios
-      .get(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-        headers: {
-          Authorization: `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`,
-        },
-      })
-      .then((response) => {
-        paymentStatus = response.data.status;
-        console.log("Status atualizado:", paymentStatus);
-      })
-      .catch((error) => console.error("Erro ao buscar pagamento:", error));
+    if (!paymentId) {
+      return res.status(400).send("ID do pagamento não encontrado");
+    }
+
+    const payment = new Payment(client);
+    const paymentDetails = await payment.get({ id: paymentId });
+
+    console.log("Detalhes do pagamento:", paymentDetails);
+
+    if (paymentDetails.status === "approved") {
+      // Aqui você pode salvar no banco de dados que o pagamento foi concluído
+      console.log("Pagamento aprovado:", paymentDetails);
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.error("Erro no webhook:", error);
+    res.sendStatus(500);
   }
-
-  res.sendStatus(200); // Responde ao Mercado Pago
 });
+
+
+
+
+
+
 app.post("/cancel-order", async (req, res) => {
   try {
     const { paymentId } = req.body; // Recebe o ID do pagamento ou pedido
@@ -233,55 +219,23 @@ app.post("/cancel-order", async (req, res) => {
 });
 
 // Endpoint para consultar status do pagamento no frontend
-app.get("/payment-status", (req, res) => {
-  const { paymentId } = req.query; // Captura o paymentId da query string
+app.get("/payment_status", async (req, res) => {
+  try {
+    const { paymentId } = req.query;
+    console.log("Recebido paymentId:", paymentId);
 
-  if (!paymentId) {
-    return res.status(400).json({ error: "ID do pagamento é obrigatório." });
+    if (!paymentId) return res.status(400).send("ID do pagamento é obrigatório");
+
+    const payment = new Payment(client);
+    const paymentDetails = await payment.get({ id: paymentId });
+
+    res.json({ status: paymentDetails.status });
+  } catch (error) {
+    console.error("Erro ao verificar status:", error);
+    res.status(500).json({ error: "Erro ao verificar status do pagamento" });
   }
-
-  res.json({ status: paymentStatus });
 });
+
 console.log("Access Token:", process.env.MERCADO_PAGO_ACCESS_TOKEN);
 
 app.listen(5000, () => console.log("Servidor rodando na porta 5000"));
-
-// app.post("/create-payment", async (req, res) => {
-//   const { amount } = req.body;
-
-//   if (!amount || amount <= 0) {
-//     return res.status(400).json({ error: "Valor inválido para pagamento" });
-//   }
-
-//   try {
-//     const paymentData = {
-//       transaction_amount: amount,
-//       payment_method_id: "pix",
-//      "payer": {
-//   "email": "TESTUSER2050655442@testuser.com"
-// }
-//     };
-
-//     const response = await axios.post(
-//       "https://api.mercadopago.com/v1/payments",
-//       paymentData,
-//       {
-//         headers: {
-//           "Content-Type": "application/json",
-//           Authorization: `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`,
-//         },
-//       }
-//     );
-
-//     return res.json({
-//       qr_code: response.data.point_of_interaction.transaction_data.qr_code,
-//       qr_code_base64:
-//         response.data.point_of_interaction.transaction_data.qr_code_base64,
-//       copia_e_cola:
-//         response.data.point_of_interaction.transaction_data.ticket_url,
-//     });
-//   } catch (error) {
-//     console.error("Erro ao criar pagamento:", error.response?.data || error);
-//     res.status(500).json({ error: "Erro ao processar pagamento" });
-//   }
-// });
