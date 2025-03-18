@@ -30,7 +30,7 @@ const SuccessPage = () => {
   }, []); // O efeito será executado apenas na primeira renderização
 
   return (
-    <div className="flex flex-col -mt-10 items-center text-center p-6 bg-white">
+    <div className="flex flex-col h-screen -mt-10 items-center text-center p-6 bg-white">
       {/* Se o GIF terminar, exibe a imagem estática */}
       {!isGifFinished ? (
         <Image

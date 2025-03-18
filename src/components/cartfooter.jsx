@@ -55,7 +55,7 @@ export default function CartFooter({setmodalAddressOpen}) {
   }, 0);
   
 
-  const deliveryFee = 0; // Taxa de entrega
+  const deliveryFee = 4; // Taxa de entrega
   const total = subtotal + deliveryFee;
 
 
@@ -72,34 +72,36 @@ export default function CartFooter({setmodalAddressOpen}) {
   
   const handleContinue = () => {
     if (!localStorage.getItem("userData")) {
-      // Se não tiver dados no localStorage, abre o modal
       setShowUserInfoModal(true);
       return;
     }
   
-    // Calculando o total
-    const total = cartItems.reduce((acc, item) => {
+    // Calculando o total corretamente, incluindo a taxa de entrega
+    const subtotal = cartItems.reduce((acc, item) => {
       const itemPrice = parseFloat(item.price.replace('R$', '').replace(',', '.'));
-      // Garantir que o preço não seja NaN
       if (isNaN(itemPrice)) {
         console.warn("Preço inválido:", item.price);
-        return acc;  // Se o preço for inválido, não adiciona ao total
+        return acc;
       }
       return acc + itemPrice * item.quantity;
     }, 0);
   
-    // Garantir que o total não seja NaN, caso contrário, atribui 0
-    if (isNaN(total)) {
-      console.error("Total inválido:", total);
-      return;  // Se o total for NaN, não prossegue
+    // Garantir que o subtotal seja um número válido
+    if (isNaN(subtotal)) {
+      console.error("Subtotal inválido:", subtotal);
+      return;
     }
   
-    // Salvando o total no localStorage apenas se for um número válido
+    // Adicionando a taxa de entrega
+    const total = subtotal + deliveryFee;
+  
+    // Salvando no localStorage apenas se for um número válido
     localStorage.setItem("cartTotal", total > 0 ? total.toFixed(2) : "0.00");
-    
+  
     router.push(`/checkout`);
     setIsCartOpen(!isCartOpen);
   };
+  
   
   
   const handleToggleCart = () => {
@@ -203,7 +205,7 @@ export default function CartFooter({setmodalAddressOpen}) {
                 }, 0);
 
                 const totalItemPrice =
-                  itemPrice * item.quantity + complementsPrice;
+                  itemPrice * item.quantity + complementsPrice ;
 
                 return (
                   <div
